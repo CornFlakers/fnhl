@@ -1,6 +1,6 @@
 FNHL APP README
 
-You will have to create your own file under src/
+1. You will have to create your own file under src/
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -29,6 +29,8 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export default app
+
+2. You may need to run firebase init on the repo .firebaserc file not sent to repo
 
 # Getting Started with Create React App
 

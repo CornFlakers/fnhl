@@ -117,38 +117,38 @@ export const MainNavBar = () => {
                     <span id="bar" className='h-1 w-full bg-white rounded' />
                 </a>
                 
-                <div id="MainNavBar-NavBarLinks" className='sm:flex sm:flex-row flex-col justify-between w-full hidden active:flex sm:px-2 sm:h-10' >
-                    <ul className='m-0 p-0, flex sm:flex-row flex-col justify-between w-full'>
+                <div id="MainNavBar-NavBarLinks" className='sm:flex sm:flex-row flex-col justify-between w-full hidden active:flex sm:h-[59px]' >
+                    <ul className='m-0 p-0, flex sm:flex-row flex-col justify-evenly w-full'>
                     
                         <button 
                         onClick={(e) => {navClickHandler("/scores")}}
-                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50">
+                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]">
                             Scores
                         </button>
                     
                         <button 
                         onClick={(e) => {navClickHandler("/news")}}
-                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50">
+                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]">
                             News
                         </button>
                     
                         <button 
                         onClick={(e) => {navClickHandler("/standings")}}
-                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50">
+                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]">
                             Standings
                         </button>
                     
                         <button 
                         onClick={(e) => {navClickHandler("/stats")}}
                         // href="stats.asp" 
-                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50" >
+                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]" >
                             Stats
                         </button>
                     
                         <button 
                         onClick={(e) => {navClickHandler("/schedule")}}
                         // href="schedule.asp" 
-                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50">
+                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]">
                             Schedule
                         </button>
                     
@@ -157,21 +157,21 @@ export const MainNavBar = () => {
                         <button 
                         onClick={(e) => {navClickHandler("/players")}}
                         // href="players.asp" 
-                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50">
+                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]">
                             Players
                         </button>
                     
                         <button 
                         onClick={(e) => {navClickHandler("/teams")}}
                         // href="teams.asp" 
-                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50">
+                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]">
                             Teams
                         </button>
                     
                         <button 
                         onClick={(e) => {navClickHandler("/history")}}
                         // href="history.asp" 
-                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50">
+                        className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]">
                             History
                         </button>
                     
@@ -181,7 +181,7 @@ export const MainNavBar = () => {
                         ?
                             <button 
                                 // href="#" 
-                                className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50"
+                                className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]"
                                 onClick={(e) => {navClickHandler("/manage")}}>
                         
                                 Manage
@@ -189,7 +189,7 @@ export const MainNavBar = () => {
                         :
                             <button 
                                 // href="#" 
-                                className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block sm:p-1 sm:py-2 px-2 py-1.5 w-full text-center bg-[#616161] z-50"
+                                className="hover:bg-slate-50 hover:text-slate-900 justify-evenly block w-full text-center bg-[#616161] z-50 h-[59px]"
                                 onClick={(e) => {navClickHandler("/signin")}}>
                             
                                 Login

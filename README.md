@@ -1,9 +1,9 @@
 FNHL APP README
 
-Have nvm / npm installed on target system.
-Clone this repo.
-Run npm install in the repo dir.
-Create Firebase.js under src/
+1. Have nvm / npm installed on target system.
+2. Clone this repo.
+3. Run npm install in the repo dir.
+4. Create Firebase.js under src/
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -33,14 +33,8 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 export default app
 
-4. create .firebaserc under the fnhl dir
-   {
-   "projects": {
-   "default": "yourproject-id"
-   }
-   }
-
-5.
+5. run npm install firebase in the repo
+6. npm run start
 
 # Getting Started with Create React App
 

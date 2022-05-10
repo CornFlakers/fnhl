@@ -35,6 +35,7 @@ export default app
 
 5. run npm install firebase in the repo
 6. npm run start
+7. you will also have to install firebase tools https://firebase.google.com/docs/cli?authuser=0&hl=en#mac-linux-npm
 
 # Getting Started with Create React App
 

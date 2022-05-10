@@ -36,7 +36,9 @@ export const MainNavBar = () => {
     const navClickHandler = (e) => {
         //alert(e);
         const navBarLinks = document.getElementById('MainNavBar-NavBarLinks')
-        navBarLinks.classList.toggle('hidden');
+        if(!navBarLinks.classList.contains('hidden')){
+            navBarLinks.classList.toggle('hidden');    
+        }
         navigate(e)
     }
 

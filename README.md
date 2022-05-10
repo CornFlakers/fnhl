@@ -1,9 +1,9 @@
 FNHL APP README
 
-0. Have nvm / npm installed on target system.
-1. Clone this repo.
-2. Run npm install in the repo dir.
-3. Create Firebase.js under src/
+Have nvm / npm installed on target system.
+Clone this repo.
+Run npm install in the repo dir.
+Create Firebase.js under src/
 
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";

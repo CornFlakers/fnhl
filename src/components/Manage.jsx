@@ -16,6 +16,7 @@ const Manage = () => {
   const [isManageProfile, setIsManageProfile] = useState(false);
   const [isManageTeam, setIsManageTeam] = useState(false);
   const [userInfo, setUserInfo] = useState({});
+
   const { logout } = UserAuth();
   const navigate = useNavigate();
 
@@ -23,6 +24,7 @@ const Manage = () => {
   //setIsManageTeam(false);
 
   useEffect( () => {
+
     if(loading){
       return;
       //figured this out,
@@ -33,7 +35,6 @@ const Manage = () => {
     else{
       //loading is not true, so we assume our page and its assets have loaded, or at least the user auth obj
       let mounted = true;
-
   
       // get logged in user info
       try{
@@ -44,8 +45,7 @@ const Manage = () => {
           if(mounted){
             //set info
             setUserInfo(data.data());
-            console.log('user info');
-            console.log(userInfo);
+            console.log('user info',data.data());
           }
         });
       }catch(e){
@@ -60,9 +60,11 @@ const Manage = () => {
   }, [user, loading])
 
   useEffect( () => {
+
     if(loading){
       return;
     }
+
     if(Object.keys(userInfo).length == 0){
       console.log("user info not defined yet");
     }
@@ -77,6 +79,7 @@ const Manage = () => {
  
   //logout the user
   const handleLogout = async () => {
+
       try{
         await logout();
         navigate('/');
@@ -119,23 +122,24 @@ const Manage = () => {
       we should check to see if the logged in user is a league official */
   return (
     <div>
-      <div className='text-center'>
-        <h1 className="text-xl">Manage</h1>
+      
+      <div className="flex justify-center shadow-md bg-white mt-2 sm:max-w-lg max-w-xs m-auto">
+        <h1 className="text-xl w-full items-center text-center font-bold">Manage</h1>
       </div>
         
       {/* card layout for the manage > tools 
       style conditionally: https://www.codegrepper.com/code-examples/javascript/how+to+add+conditional+classname+in+react
       disabling buttons based on properties: https://stackoverflow.com/questions/31163693/how-do-i-conditionally-add-attributes-to-react-components*/}
-      <div className='flex justify-center'>
-        <div className='text-center shadow-md bg-white justify-center'>
-          <h1 className='text-xl border-2 w-64 text-center justify-center'>Tools</h1>
-          <div className='inline-block rounded-md' role="group">
-            <div>  
+      <div className='flex justify-center shadow-md bg-white mt-2 w-full sm:max-w-lg max-w-xs m-auto'>
+        <div className='w-full'>
+          <h1 className='text-lg font-bold w-full text-center items-center justify-center'>Tools</h1>
+          <div className='w-full inline-block rounded-md' role="group">
+            <div className='w-full'>  
               <button 
                 id="ManageProfile"
                 className={
                   `
-                    w-64 border-2 h-8
+                    w-full h-10
                     ${isManageProfile? 
                       " bg-slate-500 text-white"
                       : "hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white"
@@ -144,7 +148,7 @@ const Manage = () => {
                 }
                 onClick={() => handleIt("ManageProfile")}
                 disabled={isManageProfile}> 
-                <h1 className='text-base'>Manage Profile</h1> 
+                <h1 className='text-base w-full'>Manage Profile</h1> 
               </button> 
             </div>
             {userInfo?.['isLeagueOfficial'] && 
@@ -153,7 +157,7 @@ const Manage = () => {
                   id="ManageLeague"
                   className={
                     `
-                      w-64 border-2 h-8
+                      w-full h-10
                       ${isManageLeague? 
                         " bg-slate-500 text-white"
                         : "hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white"
@@ -172,13 +176,13 @@ const Manage = () => {
                   id="ManageTeam"
                   className={
                     `
-                      w-64 border-2 h-8
+                      w-full h-10
                       ${isManageTeam? 
                         "bg-slate-500 text-white":
                         "hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white"}`}
                   onClick={() => handleIt("ManageTeam")}
                   disabled={isManageTeam}> 
-                  <h1 className='text-base'>Manage Team</h1> 
+                  <h1 className='text-base w-full'>Manage Team</h1> 
                 </button>
               }
             </div>
@@ -194,13 +198,13 @@ const Manage = () => {
 
       {isManageLeague && 
       <div>
-        <ManageLeague />
+        <ManageLeague userInfo={userInfo} />
       </div>
       }
       
       {isManageTeam && 
       <div>
-        <ManageTeam />
+        <ManageTeam userInfo={userInfo} />
       </div>
       }
 

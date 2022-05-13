@@ -26,7 +26,11 @@ export const AuthContextProvider = ({children}) => {
 
             //create user record
             setDoc(doc(db,"users",data.user["uid"]),{
-                email: email
+                email: email,
+                isGM: false,
+                isLeagueOfficial: false,
+                commissioner_for_league: '',
+                name: ''
             });
         })
         console.log(createResult);

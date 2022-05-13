@@ -23,10 +23,12 @@ import ManageTeam from './components/ManageTeam'
 import {ErrorBoundary} from './components/ErrorBoundary.jsx'
 function App() {
   return (
-    <div className='App'>
+    <div className='App bg-gray-100'>
       <AuthContextProvider>
-        <NavBar />
-          <div className='bg-gray-100'>
+        <div className='fixed w-full top-0 z-40'>
+        <NavBar />  
+        </div>
+        <div className='bg-gray-100 relative md:top-[160px] top-[110px]'>
           <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/signup' element={<Signup />} />
@@ -40,13 +42,7 @@ function App() {
               <Route path='/players' element={<Players />} />
               <Route path='/teams' element={<Teams />} />
               <Route path='/history' element={<History />} />
-              <Route path='/manage_league' element=
-                {
-                  <ProtectedRoute>
-                    <ManageLeague />
-                  </ProtectedRoute>
-                } 
-              />
+              
               <Route path='/manage' element=
                 {
                   <ProtectedRoute>
@@ -54,13 +50,7 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
-              <Route path='/manage_team' element=
-                {
-                  <ProtectedRoute>
-                    <ManageTeam />
-                  </ProtectedRoute>
-                } 
-              />
+              
           </Routes>
         <Footer />
         </div>

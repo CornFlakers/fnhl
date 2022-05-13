@@ -98,7 +98,7 @@ export const MainNavBar = () => {
         <div id="MainNavBar-Container"> 
 
             <div id="MainNavBar-Navbar" 
-                className="sm:flex sm:flex-row flex-col h-[59px] shadow-md justify-between sm:items-center items-start bg-[#616161] text-white text-lg">
+                className="w-full z-50 sm:flex sm:flex-row flex-col h-[59px] shadow-md justify-between sm:items-center items-start bg-[#616161] text-white text-lg">
                 
                 <div id="MainNavBar-BrandTitle" className="md:hidden flex p-0">
                     <button className='bg-white h-[59px] px-2 py-1 w-[56px]' title="Home" onClick={(e) => {navClickHandler("home")}}>
@@ -200,15 +200,14 @@ export const MainNavBar = () => {
                     </ul>
                 </div>
             </div>
+            
             {user &&
-            <div className='p-2 flex justify-end bg-slate-200 m-2'>
-                
-                <div className='mr-2 flex'>
-                    <h1>You're logged in as <Link className='underline' to="/manage"><i>{userInfo.name? userInfo.name : userInfo.email}</i></Link> | </h1>
-                    <a href="#" onClick={handleLogout} className='pl-2 underline'>Logout</a>
-                </div>
+            <div className='p-2 mr-2 bg-slate-200 m-2 shadow-md text-xs sm:text-base flex float-right'>
+                <h1>You're logged in as <Link className='underline italic' to="/manage">{userInfo.name? userInfo.name : userInfo.email}</Link> | </h1>
+                <a href="#" onClick={handleLogout} className='pl-2 underline'>Logout</a>
             </div>
             }
+
         </div>
     )
 }

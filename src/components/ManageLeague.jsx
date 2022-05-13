@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, collectionGroup, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
 import { auth, db } from '../firebase';
 import Select from 'react-select';
@@ -9,45 +9,31 @@ function numberWithCommas(x) {
 
 
 
-const ManageLeague = () => {
+const ManageLeague = (props) => {
+
+  console.log("ManageLeague",props);
+  console.log("userInfo",props.userInfo);
+  console.log("commissioner_for_league",props.userInfo.commissioner_for_league);
+  console.log("commissioner_for_league.path",props.userInfo.commissioner_for_league.path);
+
+  const league_path = props.userInfo.commissioner_for_league.path;
 
   const [leagueInfo, setleagueInfo] = useState({});
   const [availableUsers, setAvailableUsers] = useState([]);
-  const [availableGMs, setAvailableGMs] = useState([]);
+  const [availableTeams, setAvailableTeams] = useState([]);
+  const [leagueGMs, setLeagueGMs] = useState([]);
   
-  const [lstUsers, setListUsers] = useState();//users
-  const [lstGMs, setListGMs] = useState();
-  const [lstTeams, setListTeams] = useState();
-
   const [gmOptions, setGMOptions] = useState();//options to select gms and assign them to a team
   const [teamOptions, setTeamOptions] = useState();//team options to select and pair with a selected gm
+  const [allTeamOptions, setAllTeamOptions] = useState(); //get a list of all teams to be used to select which two teams to play in the sim
 
   const [gmValue, setGMValue] = useState("");//the selected gm value
   const [teamValue, setTeamValue] = useState("");//the selected team value
 
+  const [homeTeam, setHomeTeam] = useState();
+  const [awayTeam, setAwayTeam] = useState();
+
   //functions
-  function prepareGMOptions(i){
-    console.log("prepGMOptions",i);
-
-    const options = [];
-
-    //end goal
-    // const options = [
-    //   { value: 'chocolate', label: 'Chocolate' },
-    //   { value: 'strawberry', label: 'Strawberry' },
-    //   { value: 'vanilla', label: 'Vanilla' }
-    // ]
-
-    i.forEach((data) => {
-      console.log("foreach data",data);
-      data.name ? options.push({value:data.id, label:data.name}) : console.log("err");
-    })
-
-    // const options = [
-    //   { value:x, label: y}
-    // ]
-  }
-
   function setUserSelectOptions(i){
     console.log("setUserSelectOptions i:",i);
 
@@ -64,6 +50,24 @@ const ManageLeague = () => {
     console.log("output of options for users",options);
 
     setGMOptions(options);
+  }
+
+  function setTeamSelectOptions(i){
+    console.log("setTeamSelectOptions",i);
+
+    const options = [];
+
+    for(const data of i){
+      console.log("within the for loop, data",data);
+      options.push({
+        value:data.id,
+        label:data.data.name? data.data.name : data.data.code
+      })
+    }
+
+    console.log("output of options for teams",options);
+
+    setTeamOptions(options);
   }
 
   //db functions
@@ -88,55 +92,110 @@ const ManageLeague = () => {
 
           console.log("league info after db query, within db result loop",i);
           setleagueInfo(i);
+
         })  
       }
     })
 
     //usersSnapshot: query the db for a list of all users, regardless if they are a gm or not
-    const usersSnapshot = getDocs(collection(db,"users"))
-    .then((data) => {
+    try{
+      const userQ = query(collection(db,"users"), where("isGM", "==", false));
+      console.log("userQ",userQ)
+      const usersSnapshot = getDocs(userQ).then((data) => {
+
+        console.log("usersSnapshot",data)
+
+        if(mounted){
+          let i = [];
+  
+          data.forEach((doc) => {
+            console.log("usersSnapshot doc.data()",doc.data(),"doc",doc);
+            i.push({
+              id: doc.id,
+              data: doc.data()
+            });
+          })
+  
+          console.log("i",i);
+          
+          setAvailableUsers(i);
+        }
+      })
+    }
+    catch(e){
+      console.error("userQ/usersSnapshot error:",e);
+    }
+    
+
+    //gmQ, gmSnapshot: query the db for a list of GMs, users who are assigned to a team in the league
+    // const gmQ = query(collection(db, "users"), where("isGM", "==", true));
+    // const gmSnapshot = getDocs(gmQ)
+    // .then((data) => {
+    //   if(mounted){
+    //     let i = [];
+
+    //     console.log(data);
+
+    //     data.forEach((doc) => {
+    //       console.log("doc.data()",doc.data());
+    //       i.push(doc.data());
+    //     })
+
+    //     console.log("i",i);
+    //   }
+    // })
+
+    //teamQ, teamSnapshot: query the db for a list of teams that do not have a GM assigned to them yet
+    console.log("league_path",league_path)
+    const teamQ = query(collection(db,league_path+"/teams"), orderBy("name"), where('hasGM', '==', false));
+    console.log("teamQ",teamQ)
+    const teamSnapshot = getDocs(teamQ)
+      .then((data) => {
+        if(mounted){
+          let i = [];
+
+          console.log("teams query",data);
+
+          data.forEach((doc) => {
+            console.log("doc.data()",doc.data());
+            i.push({
+              id: doc.id,
+              data: doc.data()
+            });
+          })
+
+          setAvailableTeams(i);
+        }
+      })
+    
+    //gm query
+    console.log("list of GMs");
+    const gmQ = query( collection(db, league_path+"/teams"), where('hasGM', '==', true), orderBy("name") )
+    const gmSnapshot = getDocs(gmQ).then( (data) => {
       if(mounted){
         let i = [];
 
+        console.log("gmSnapshot:list of GMs who run teams", data);
+
         data.forEach((doc) => {
-          console.log("doc.data()",doc.data(),"doc",doc);
           i.push({
             id: doc.id,
             data: doc.data()
-          });
+          })
         })
 
-        console.log("i",i);
-        setAvailableUsers(i);
+        setLeagueGMs(i);
       }
     })
 
-    //gmQ, gmSnapshot: query the db for a list of GMs, users who are assigned to a team in the league
-    const gmQ = query(collection(db, "users"), where("isGM", "==", true));
-    const gmSnapshot = getDocs(gmQ)
-    .then((data) => {
-      if(mounted){
-        let i = [];
 
-        console.log(data);
-
-        data.forEach((doc) => {
-          console.log("doc.data()",doc.data());
-          i.push(doc.data());
-        })
-
-        console.log("i",i);
-        setAvailableGMs(i);
-        prepareGMOptions(i);
-      }
-    })
-    
     //return statement called on unmount of component
     return () => {
       mounted = false;
     }    
   },[])
 
+  //when league info is set/updated
   useEffect( () => {
     if(Object.keys("leagueInfo").length == 0){
       console.log("leagueinfo not set");
@@ -150,92 +209,98 @@ const ManageLeague = () => {
 
   //set list objects to populate dropdowns
   useEffect( () => {
+    
+    //check for list of users
     if(Object.keys("availableUsers").length == 0){
       console.log("availableUsers not set");
     }
     else{
       console.log("availableUsers",availableUsers);
-      setListUsers(availableUsers.map((d) =><h1 key={d.id? d.id : "no user id found"}>{d.data.name? d.data.name : d.data.email}</h1>));
       setUserSelectOptions(availableUsers);
     }
 
-    if(Object.keys("availableGMs").length == 0){
-      console.log("availableGMs not set");
+    //check for list of teams
+    if(Object.keys("availableTeams").length == 0){
+      console.log("availableTeams not set");
     }
     else{
-      console.log("availableGMs",availableGMs);
-      setListGMs(availableGMs.map((d) =><h1 key={d.name? d.name : d.email}>{d.name? d.name : d.email}</h1>));
+      console.log("availableTeams",availableTeams);
+      setTeamSelectOptions(availableTeams);
     }
 
-  }, [availableUsers, availableGMs])
-
-  useEffect( () => {
-    //lstUsers
-    if(Object.keys("lstUsers").length == 0){
-      console.log("lstUsers not set");
+    //check for list of GMs who run teams
+    if(Object.keys("leagueGMs").length == 0){
+      console.log("leagueGMs not set");
     }
     else{
-      console.log("lstUsers",lstUsers);
+      console.log("leagueGMs",leagueGMs);
+      //setTeamSelectOptions(availableTeams);
     }
 
-    //lstGMs
-    if(Object.keys("lstGMs").length == 0){
-      console.log("lstGMs not set");
-    }
-    else{
-      console.log("lstGMs",lstGMs);
-    }
+  }, [availableUsers, availableTeams, leagueGMs])
 
-    //lstTeams
-    if(Object.keys("lstTeams").length == 0){
-      console.log("lstTeams not set");
-    }
-    else{
-      console.log("lstTeams",lstTeams);
-    }
-    
+  const handleUserChange = (e) => {
+    console.log("handleUserChange",e);
+    setGMValue(e)
+  }
 
-  }, [lstUsers, lstGMs, lstTeams])
+  const handleTeamChange = (e) => {
+    console.log("handleTeamChange",e);
+    setTeamValue(e)
+  }
 
-  //functions
-  const updateGMCollection = (e) => {
+  const updateTeamOwners = (e) => {
     e.preventDefault();
+    console.log("updateTeamOwners",e);
+    console.log("gmValue",gmValue)
+    console.log("gmValue.value",gmValue.value)
 
-      let data = {
-        name: 'productName',
-        size: 'medium',
-        userRef: db.doc('users/' + auth().currentUser.uid)
-      };
+    console.log("teamValue",teamValue)
+    console.log("teamValue.value",teamValue.value)
 
-      console.log("leagueInfo i.id",leagueInfo);
+    //update firestore teams collection to set teamValue.gm = gmValue
+    try{
+      //write an update to the teams collection that there is a GM now, and also add the gm object for name/id for future lookups
+      updateDoc( doc(db, league_path+"/teams/"+teamValue.value), {gm: gmValue, hasGM: true} )
+      .then( () => {
+        console.log("write complete");
+        //then write to update user collection that this user is a GM now
+        updateDoc ( doc(db, 'users', gmValue.value), {isGM: true, team: teamValue.value} )
+        .then( () => {
+          console.log("user collection updated")
+        })
+      });
+    }
+    catch(e){
+      console.error(e);
+    }
 
-      db.collection('leagues//gms').add(data);
+    //update list of GMs
 
-      console.log("submit profile form");
-      
-        try{
-            //call db to update user
-            //const userRef = doc(db, "users", userid)
-            
-            // const updateUserDoc = updateDoc(userRef, {
-            //     name: newName
-            // }).then((data) => {
-            //     console.log("document added",data);
-            //     window.location.reload(false)
-            // }).catch((e) => {
-            //     console.error(e.message);
-            // })
+  }
 
-        }catch(e){
-            console.error("error",e.message);
-        }
+  const simulateGames = (e) => {
+    e.preventDefault();
+    console.log("sim games");
+  }
+
+  const handleHomeTeamChange = (e) => {
+    setHomeTeam(e)
+  }
+
+  const handleAwayTeamChange = (e) => {
+    setAwayTeam(e)
   }
 
   return (
     <div className='mt-2'>
-      <div className='text-center border-b-2'>
-        <h1 className='text-xl'>
-          <b>{leagueInfo?.name} - Season:</b> {leagueInfo?.current_season} <b>Salary Cap:</b> {leagueInfo?.salary_cap}
+      
+      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center'>
+        <h1 className='text-center text-lg'>
+          <b>{leagueInfo?.name} - Season:</b> {leagueInfo?.current_season}
+        </h1>
+        <h1 className='text-center text-lg'>
+        <b>Salary Cap:</b> {leagueInfo?.salary_cap}
         </h1>
       </div>
       
@@ -250,33 +315,79 @@ const ManageLeague = () => {
       */}
       
       {/* List of GMs */}
-      <div className='flex flex-wrap'>
-        <div className='w-64 m-auto text-center shadow-sm mt-2 mb-0'>
-          <h1 className='w-64 m-auto'>List of available Users</h1>
-          <div className='w-64 m-auto text-left'>
-            <Select options={gmOptions} />
-          </div>  
-        </div>
+      
+      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2'>
+        <form onSubmit={simulateGames}>
+            
+          <h1 className='text-center underline font-bold pt-2'>Simulate</h1>
+          <p className='p-2 text-center'>Select two teams to simulate a game</p>
 
-        <div className='w-64 m-auto text-center shadow-sm mt-2 mb-0'>
-          <h1 className='w-64 m-auto'>List of Teams</h1>
-            <div className='w-64 m-auto text-left'>
-              <h1>team</h1>
+          <div className='flex flex-wrap px-4 justify-center'>
+            <div className='p-1'>
+              <h1 className='w-40 align-middle'>Home Team</h1>
+              <div className='w-64'>
+                <Select options={allTeamOptions} onChange={handleHomeTeamChange} />
+              </div>
             </div>
-        </div>
+
+            <div className='p-2'>
+              <h1 className='w-40'>Away Team</h1>
+              <div className='w-64'> 
+                <Select options={allTeamOptions} onChange={handleAwayTeamChange} />
+              </div>
+            </div>
+          </div>
+
+          <div className='text-center border-t-2 mt-4'>
+            <button className='w-full h-10 hover:bg-zinc-600 hover:text-white' type='submit'>Simulate</button>
+          </div>
+            
+        </form>
+      </div>  
+
+      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2'>
+        <h1 className='text-center underline font-bold py-2'>List of League GMs</h1>
+          {leagueGMs && Object.keys(leagueGMs).map((key) => (
+            <h3 className='text-left px-4'>
+              {console.log("key",key)}
+              {console.log("leagueGMs",leagueGMs)}
+              {console.log("leagueGMs[key]",leagueGMs[key])}
+              {console.log("leagueGMs[key].id",leagueGMs[key].id)}
+              {console.log("leagueGMs[key].data",leagueGMs[key].data)}
+              {console.log("leagueGMs[key].data.name",leagueGMs[key].data.name)}
+              {leagueGMs[key].data.name} - {leagueGMs[key].data.gm.label}{console.log(leagueGMs[key])}
+            </h3>
+          ))} 
       </div>
 
-      <div className='w-64 m-auto text-center shadow-sm mt-2 mb-0'>
-          <h1 className='w-64 m-auto'>List of GMs</h1>
-          <div className='w-64 m-auto text-left'>
-            {lstGMs}
+      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2 py-2'>
+        <form onSubmit={updateTeamOwners}>
+            
+          <h1 className='text-center underline font-bold'>Manage Your League</h1>
+          <p className='p-2 text-left px-4'>Select a User, who is not already a GM. Then select a Team, that does not already have a GM. Submit to make the link.</p>
+
+          <div className='flex flex-wrap px-4 justify-center'>
+
+            <div className='p-2'>
+              <h1 className='w-40 align-middle'>List of Available Users</h1>
+              <div className='w-64'>
+                <Select options={gmOptions} onChange={handleUserChange} />
+              </div>
+            </div>
+
+            <div className='p-2'>
+              <h1 className='w-40'>List of Available Teams</h1>
+              <div className='w-64'> 
+                <Select options={teamOptions} onChange={handleTeamChange} />
+              </div>
+            </div>
           </div>
-        </div>
-      
 
-      <form onSubmit={updateGMCollection}>
-
-      </form>
+          <div className='text-center border-t-2 mt-4'>
+            <button className='w-full h-10 hover:bg-zinc-600 hover:text-white' type='submit'>Submit</button>
+          </div>
+        </form>
+      </div>  
     </div>
   )
 }

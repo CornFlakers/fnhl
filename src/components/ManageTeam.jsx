@@ -7,7 +7,7 @@ const ManageTeam = (props) => {
   const commissioner_league_path = props.userInfo.commissioner_for_league.path;
   const league_id = props.userInfo.default_league.value;
   const team_id = props.userInfo.team;
-  const [team, setTeam] = useState();
+  const [team, setTeam] = useState("");
 
   console.log("league",league_id);
 
@@ -40,9 +40,11 @@ const ManageTeam = (props) => {
   return (
     <div className='mt-2'>
       <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center'>
-        <h1 className='text-center text-lg font-bold'>
-          {team.data.name}
-        </h1>
+        {team.data && 
+          <h1 className='text-center text-lg font-bold'>
+            {team.data.name}
+          </h1>
+        }
       </div>
     </div>
   )

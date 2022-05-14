@@ -360,7 +360,7 @@ const ManageLeague = (props) => {
           ))} 
       </div>
 
-      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2 py-2'>
+      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2 pt-2'>
         <form onSubmit={updateTeamOwners}>
             
           <h1 className='text-center underline font-bold'>Manage Your League</h1>

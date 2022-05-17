@@ -11,11 +11,6 @@ function numberWithCommas(x) {
 
 const ManageLeague = (props) => {
 
-  console.log("ManageLeague",props);
-  console.log("userInfo",props.userInfo);
-  console.log("commissioner_for_league",props.userInfo.commissioner_for_league);
-  console.log("commissioner_for_league.path",props.userInfo.commissioner_for_league.path);
-
   const league_path = props.userInfo.commissioner_for_league.path;
 
   const [leagueInfo, setleagueInfo] = useState({});
@@ -33,39 +28,38 @@ const ManageLeague = (props) => {
   const [homeTeam, setHomeTeam] = useState();
   const [awayTeam, setAwayTeam] = useState();
 
+  const [playerName, setPlayerName] = useState();//user provided
+  const [playerAge, setPlayerAge] = useState();//user provided
+  const [playerCareerEarnings, setPlayerCareerEarnings] = useState(0);//default 0
+  const [playerCondition, setPlayerCondition] = useState(100);//default 100
+  const [playerCurrentTeam, setPlayerCurrentTeam] = useState();//user provided
+  const [playerTeams, setPlayerTeams] = useState([]);
+
   //functions
   function setUserSelectOptions(i){
-    console.log("setUserSelectOptions i:",i);
 
     const options = [];
 
     for(const data of i){
-      console.log("within the for loop, data",data);
       options.push({
         value:data.id,
         label:data.data.name? data.data.name : data.data.email
       })
     }
 
-    console.log("output of options for users",options);
-
     setGMOptions(options);
   }
 
   function setTeamSelectOptions(i){
-    console.log("setTeamSelectOptions",i);
 
     const options = [];
 
     for(const data of i){
-      console.log("within the for loop, data",data);
       options.push({
         value:data.id,
         label:data.data.name? data.data.name : data.data.code
       })
     }
-
-    console.log("output of options for teams",options);
 
     setTeamOptions(options);
   }
@@ -82,7 +76,6 @@ const ManageLeague = (props) => {
         let i = {};
 
         data.forEach((doc) => {
-          console.log(doc.id, "=>",doc.data());
           
           i.name = doc.data().name;
           i.salary_cap = numberWithCommas(doc.data().salary_cap);
@@ -90,7 +83,6 @@ const ManageLeague = (props) => {
           i.current_season = doc.data().current_season;
           i.id = doc.id;
 
-          console.log("league info after db query, within db result loop",i);
           setleagueInfo(i);
 
         })  
@@ -100,23 +92,17 @@ const ManageLeague = (props) => {
     //usersSnapshot: query the db for a list of all users, regardless if they are a gm or not
     try{
       const userQ = query(collection(db,"users"), where("isGM", "==", false));
-      console.log("userQ",userQ)
       const usersSnapshot = getDocs(userQ).then((data) => {
-
-        console.log("usersSnapshot",data)
 
         if(mounted){
           let i = [];
   
           data.forEach((doc) => {
-            console.log("usersSnapshot doc.data()",doc.data(),"doc",doc);
             i.push({
               id: doc.id,
               data: doc.data()
             });
           })
-  
-          console.log("i",i);
           
           setAvailableUsers(i);
         }
@@ -126,38 +112,14 @@ const ManageLeague = (props) => {
       console.error("userQ/usersSnapshot error:",e);
     }
     
-
-    //gmQ, gmSnapshot: query the db for a list of GMs, users who are assigned to a team in the league
-    // const gmQ = query(collection(db, "users"), where("isGM", "==", true));
-    // const gmSnapshot = getDocs(gmQ)
-    // .then((data) => {
-    //   if(mounted){
-    //     let i = [];
-
-    //     console.log(data);
-
-    //     data.forEach((doc) => {
-    //       console.log("doc.data()",doc.data());
-    //       i.push(doc.data());
-    //     })
-
-    //     console.log("i",i);
-    //   }
-    // })
-
     //teamQ, teamSnapshot: query the db for a list of teams that do not have a GM assigned to them yet
-    console.log("league_path",league_path)
     const teamQ = query(collection(db,league_path+"/teams"), orderBy("name"), where('hasGM', '==', false));
-    console.log("teamQ",teamQ)
     const teamSnapshot = getDocs(teamQ)
       .then((data) => {
         if(mounted){
           let i = [];
 
-          console.log("teams query",data);
-
           data.forEach((doc) => {
-            console.log("doc.data()",doc.data());
             i.push({
               id: doc.id,
               data: doc.data()
@@ -169,13 +131,10 @@ const ManageLeague = (props) => {
       })
     
     //gm query
-    console.log("list of GMs");
     const gmQ = query( collection(db, league_path+"/teams"), where('hasGM', '==', true), orderBy("name") )
     const gmSnapshot = getDocs(gmQ).then( (data) => {
       if(mounted){
         let i = [];
-
-        console.log("gmSnapshot:list of GMs who run teams", data);
 
         data.forEach((doc) => {
           i.push({
@@ -188,6 +147,27 @@ const ManageLeague = (props) => {
       }
     })
 
+    //all team query for create a player team list
+    if(playerTeams.length === 0)
+    {
+      const createPlayerTeamListQ = query(collection(db, league_path+"/teams"), orderBy("name"))
+      getDocs(createPlayerTeamListQ)
+        .then((doc) => {
+          if(mounted){
+            doc.forEach((doc) => {
+              console.log("createPlayerTeamListQ",doc)
+              setPlayerTeams(old => [...old, {
+                "id":doc.id,
+                "value":doc.data()
+              }])
+            })
+          }
+        })
+        .then(console.log("teams set"))
+        .catch((err) => {console.error(err)})
+    }
+    
+
 
     //return statement called on unmount of component
     return () => {
@@ -195,49 +175,37 @@ const ManageLeague = (props) => {
     }    
   },[])
 
-  //when league info is set/updated
+  //run on playerTeams update
   useEffect( () => {
-    if(Object.keys("leagueInfo").length == 0){
-      console.log("leagueinfo not set");
+    if(playerTeams.length === 0){
+      return;
     }
     else{
-      console.log("leagueInfo");
-      console.log(leagueInfo);
+      console.log("PlayerTeams",playerTeams);
     }
 
-  }, [leagueInfo])
+  }, [playerTeams])
 
   //set list objects to populate dropdowns
   useEffect( () => {
     
     //check for list of users
-    if(Object.keys("availableUsers").length == 0){
-      console.log("availableUsers not set");
+    if(availableUsers.length === 0){
+      //
     }
     else{
-      console.log("availableUsers",availableUsers);
       setUserSelectOptions(availableUsers);
     }
 
     //check for list of teams
-    if(Object.keys("availableTeams").length == 0){
-      console.log("availableTeams not set");
+    if(availableTeams.length === 0){
+      //
     }
     else{
-      console.log("availableTeams",availableTeams);
       setTeamSelectOptions(availableTeams);
     }
 
-    //check for list of GMs who run teams
-    if(Object.keys("leagueGMs").length == 0){
-      console.log("leagueGMs not set");
-    }
-    else{
-      console.log("leagueGMs",leagueGMs);
-      //setTeamSelectOptions(availableTeams);
-    }
-
-  }, [availableUsers, availableTeams, leagueGMs])
+  }, [availableUsers, availableTeams])
 
   const handleUserChange = (e) => {
     console.log("handleUserChange",e);
@@ -290,6 +258,42 @@ const ManageLeague = (props) => {
 
   const handleAwayTeamChange = (e) => {
     setAwayTeam(e)
+  }
+
+  const createPlayer = (e) => {
+    e.preventDefault()
+    if(window.confirm("Player created...")){
+      let obj = {
+        age: playerAge,
+        career_earnings: 0,
+        condition: 100,
+        current_team: playerCurrentTeam,
+        current_team_value: "team name",
+        draft: "",
+        drafted_at: 0,
+        drafted_by: "team_name",
+        drafted_detail: "1/26, First Round, 26th Overall",
+        height_in_inches: 72,
+        isInjured: false,
+        name: playerName,
+        shot_direction: "right",
+        weight_in_lbs: 200,
+        years_in_pro: 1,
+      }
+
+      console.log("obj",obj);
+    }
+    else{
+      console.log("cancel");
+    }
+  }
+
+  const clearPlayerForm = (e) => {
+    e.preventDefault();
+    let txtPlayerName = document.getElementById("player_name");
+    console.log(txtPlayerName);
+    setPlayerName("");
+    setPlayerAge("");
   }
 
   return (
@@ -347,15 +351,9 @@ const ManageLeague = (props) => {
 
       <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2'>
         <h1 className='text-center underline font-bold py-2'>List of League GMs</h1>
-          {leagueGMs && Object.keys(leagueGMs).map((key) => (
-            <h3 className='text-left px-4'>
-              {console.log("key",key)}
-              {console.log("leagueGMs",leagueGMs)}
-              {console.log("leagueGMs[key]",leagueGMs[key])}
-              {console.log("leagueGMs[key].id",leagueGMs[key].id)}
-              {console.log("leagueGMs[key].data",leagueGMs[key].data)}
-              {console.log("leagueGMs[key].data.name",leagueGMs[key].data.name)}
-              {leagueGMs[key].data.name} - {leagueGMs[key].data.gm.label}{console.log(leagueGMs[key])}
+          {leagueGMs.map((gm) => (
+            <h3 className='text-left px-4' key={gm.id}>
+              {gm.data.name} - {gm.data.gm.label}
             </h3>
           ))} 
       </div>
@@ -387,7 +385,61 @@ const ManageLeague = (props) => {
             <button className='w-full h-10 hover:bg-zinc-600 hover:text-white' type='submit'>Submit</button>
           </div>
         </form>
-      </div>  
+      </div> 
+      
+      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2 pt-2'>
+        <h1 className='text-center underline font-bold'>Create a Player</h1>
+        <p>Create a new player, associate them to a Team's Contracts</p>
+
+        <div>
+          <form onSubmit={createPlayer}>
+            <div>
+
+            </div>
+            <div className='text-center border-t-2 mt-4'>
+            {/* doc_id: guid,
+        age: 00,
+        career_earnings: 50000000, set 0 default
+        condition: 100, set 100 default
+        current_team: "{team_id}",
+        current_team_value: "team name",
+        draft: "{draft_id}",
+        drafted_at: 1,
+        drafted_by: "team_name",
+        drafted_detail: "1/26, First Round, 26th Overall",
+        height_in_inches: 000,
+        isInjured: true/false,
+        name: "player name",
+        shot_direction: "left or right",
+        weight_in_lbs: 000,
+        years_in_pro: 00, */}
+
+              
+              <label>Player Name</label>
+              <input type='text' id="player_name" onChange={(e) => setPlayerName(e.target.value)} placeholder="Text..." />
+
+              <label>Age</label>
+              <input type='text' id="player_age" onChange={(e) => setPlayerAge(e.target.value)} placeholder="Number..." />
+
+              <label>Current Team</label>
+              <select onChange={(e) => {console.log(e); setPlayerCurrentTeam(e.target.value)}}>
+                { playerTeams.map((team) => {
+                    return(
+                      <option value={team.id} key={team.id}>{team.value.name}</option>
+                    )
+                  })
+                }
+              </select>
+
+
+              <div className='flex'>
+              <button className='w-full h-10 border-t-2' onClick={clearPlayerForm}>Clear</button>
+              <input className='w-full h-10 border-t-2' type='submit' value="Create Player" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div> 
     </div>
   )
 }

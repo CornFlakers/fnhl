@@ -45,12 +45,10 @@ export const MainNavBar = () => {
      //logout the user
     const handleLogout = async () => {
         try{
-            console.log('logout attempt');
-        await logout();
-        navigate('/');
-        console.log('You are logged out');
+            await logout();
+            navigate('/');
         }catch(e){
-        console.log(e.message);
+            console.error("error with logout",e,e.message);
         }
     };
 
@@ -59,40 +57,24 @@ export const MainNavBar = () => {
           return;
         }
         else{
-          if(user){
-            //1
-            console.log("user obj loaded");
-            //2
-            console.log(user);
-          }
+            let mounted = true;
       
-          let mounted = true;
-      
-          // get logged in user info
-          try{
+            // get logged in user info
             const usersDocRef = doc(db, 'users', user.uid)
     
             getDoc(usersDocRef)
-            .then((data) => {
-              if(mounted){
-                //set info
-                setUserInfo(data.data());
-                console.log('user info');
-                console.log(userInfo);
-              }
-            });
-          }catch(e){
-            console.log("error with db query");
-          }
-    
-          return () => {
-            mounted = false;
-          }
-        }
-        
-      },[user, loading])
+                .then((data) => {
+                    if(mounted){
+                        setUserInfo(data.data());
+                    }
+                })
+                .catch((e) => {console.error("error with db query",e);})
 
-    console.log(user);
+            return () => {
+                mounted = false;
+            }
+        }
+    },[user, loading])
 
     return(
         <div id="MainNavBar-Container"> 

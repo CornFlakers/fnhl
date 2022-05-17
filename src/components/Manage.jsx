@@ -20,9 +20,6 @@ const Manage = () => {
   const { logout } = UserAuth();
   const navigate = useNavigate();
 
-  //setIsManageLeague(false);
-  //setIsManageTeam(false);
-
   useEffect( () => {
 
     if(loading){
@@ -45,11 +42,10 @@ const Manage = () => {
           if(mounted){
             //set info
             setUserInfo(data.data());
-            console.log('user info',data.data());
           }
         });
       }catch(e){
-        console.log("error with db query");
+        console.error("error with db query",e);
       }
 
       return () => {
@@ -59,41 +55,10 @@ const Manage = () => {
     
   }, [user, loading])
 
-  useEffect( () => {
-
-    if(loading){
-      return;
-    }
-
-    if(Object.keys(userInfo).length == 0){
-      console.log("user info not defined yet");
-    }
-    if(Object.keys(userInfo).length > 0){
-      //3
-      console.log("user info updated");
-      //4
-      console.log(userInfo);
-    }
-    
-  }, [userInfo, loading])
- 
-  //logout the user
-  const handleLogout = async () => {
-
-      try{
-        await logout();
-        navigate('/');
-        console.log('You are logged out');
-      }catch(e){
-        console.log(e.message);
-      }
-  };
-
   //generic handle function
   const handleIt = (s) => {
     try{
       if(s == "ManageLeague"){
-        console.log("manage league");
         setIsManageTeam(false);
         setIsManageLeague(true);
         setIsManageProfile(false);
@@ -102,19 +67,17 @@ const Manage = () => {
         //document.getElementById("ManageTeam").classList.add("bg-red")
       }
       if(s == "ManageTeam"){
-        console.log("manage team");
         setIsManageTeam(true);
         setIsManageLeague(false);
         setIsManageProfile(false);
       }
       if(s == "ManageProfile"){
-        console.log("manage profile");
         setIsManageTeam(false);
         setIsManageLeague(false);
         setIsManageProfile(true);
       }
     }catch(e){
-      console.log(e.message)
+      console.error(e.message)
     }
   }    
   
@@ -208,13 +171,6 @@ const Manage = () => {
       </div>
       }
 
-      {/* <div className='mt-2'>
-        <button 
-          onClick={(handleLogout)} 
-          className='block bg-[#616161] text-white hover:bg-slate-50 hover:text-slate-900 px-6 py-2'>
-          Logout
-        </button>  
-      </div> */}
     </div>
   )
 }

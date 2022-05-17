@@ -1,6 +1,7 @@
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
 import { db } from '../firebase';
+import ManageContracts from './ManageContracts';
 
 const ManageTeam = (props) => {
 
@@ -8,6 +9,7 @@ const ManageTeam = (props) => {
   const league_id = props.userInfo.default_league.value;
   const team_id = props.userInfo.team;
   const [team, setTeam] = useState("");
+  const [manageContracts, setManageContracts] = useState(false);
 
   console.log("league",league_id);
 
@@ -39,13 +41,25 @@ const ManageTeam = (props) => {
 
   return (
     <div className='mt-2'>
+      {team.data && 
       <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center'>
-        {team.data && 
-          <h1 className='text-center text-lg font-bold'>
-            {team.data.name}
-          </h1>
+        <h1 className='text-center text-lg font-bold'>
+          {team.data.name}
+        </h1>
+
+        <button 
+          className={` w-full h-10 ${manageContracts? "bg-slate-500 text-white":"hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white"}`}
+          onClick={() => {
+            setManageContracts(!manageContracts);}}>    
+          Manage Contracts
+        </button>
+        
+        {manageContracts &&
+          <ManageContracts team={team} league={league_id} />
         }
+        
       </div>
+      }
     </div>
   )
 }

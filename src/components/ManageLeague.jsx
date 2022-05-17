@@ -32,7 +32,8 @@ const ManageLeague = (props) => {
   const [playerAge, setPlayerAge] = useState();//user provided
   const [playerCareerEarnings, setPlayerCareerEarnings] = useState(0);//default 0
   const [playerCondition, setPlayerCondition] = useState(100);//default 100
-  const [playerCurrentTeam, setPlayerCurrentTeam] = useState();//user provided
+  const [playerCurrentTeam, setPlayerCurrentTeam] = useState("fTegT7RJrRl57U4FTV9O");//user provided
+  const [playerCurrentTeamName, setPlayerCurrentTeamName] = useState("Anaheim");//user provided
   const [playerTeams, setPlayerTeams] = useState([]);
 
   //functions
@@ -262,13 +263,13 @@ const ManageLeague = (props) => {
 
   const createPlayer = (e) => {
     e.preventDefault()
-    if(window.confirm("Player created...")){
+    if(window.confirm("Are you sure you want to Create this Player?")){
       let obj = {
         age: playerAge,
         career_earnings: 0,
         condition: 100,
         current_team: playerCurrentTeam,
-        current_team_value: "team name",
+        current_team_value: playerCurrentTeamName,
         draft: "",
         drafted_at: 0,
         drafted_by: "team_name",
@@ -280,7 +281,6 @@ const ManageLeague = (props) => {
         weight_in_lbs: 200,
         years_in_pro: 1,
       }
-
       console.log("obj",obj);
     }
     else{
@@ -290,10 +290,15 @@ const ManageLeague = (props) => {
 
   const clearPlayerForm = (e) => {
     e.preventDefault();
+    
     let txtPlayerName = document.getElementById("player_name");
-    console.log(txtPlayerName);
+    txtPlayerName.value = "";
     setPlayerName("");
-    setPlayerAge("");
+
+    let txtPlayerAge = document.getElementById("player_age");
+    txtPlayerAge.value = "";
+    setPlayerAge();
+
   }
 
   return (
@@ -422,7 +427,12 @@ const ManageLeague = (props) => {
               <input type='text' id="player_age" onChange={(e) => setPlayerAge(e.target.value)} placeholder="Number..." />
 
               <label>Current Team</label>
-              <select onChange={(e) => {console.log(e); setPlayerCurrentTeam(e.target.value)}}>
+              <select id="createPlayerCurrentTeamSelect" onChange={(e) => {
+                  var ele = document.getElementById("createPlayerCurrentTeamSelect");
+                  var val = ele.options[ele.selectedIndex].text;
+                  setPlayerCurrentTeam(e.target.value);
+                  setPlayerCurrentTeamName(val);
+                }}>
                 { playerTeams.map((team) => {
                     return(
                       <option value={team.id} key={team.id}>{team.value.name}</option>
@@ -430,6 +440,8 @@ const ManageLeague = (props) => {
                   })
                 }
               </select>
+
+              {/* TODO: add in the stats here to create the player with a baseload of stats */}
 
 
               <div className='flex'>

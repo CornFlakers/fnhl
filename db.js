@@ -61,53 +61,54 @@ let db = {
 
     players: [{
         doc_id: guid,
-        age: 00,
-        career_earnings: 50000000,
-        condition: 100,
-        current_team: "{team_id}",
-        current_team_value: "team name",
-        draft: "{draft_id}",
-        drafted_at: 1,
-        drafted_by: "team_name",
-        drafted_detail: "1/26, First Round, 26th Overall",
-        height_in_inches: 000,
-        isInjured: true/false,
-        name: "player name",
-        shot_direction: "left or right",
-        weight_in_lbs: 000,
-        years_in_pro: 00,
+        age: 00,//user provided, default 18
+        career_earnings: 50000000, //default 0
+        condition: 100, //default 100
+        current_team: "{team_id}",//user provided, default anaheim id
+        current_team_value: "{team name}",//user provided, default anaheim name
+        draft: "{draft_id}",//default 0
+        drafted_at: 1,//default 0
+        drafted_by: "{team_name}",//defualt current_team_value
+        drafted_detail: "1/26, First Round, 26th Overall",//default ""
+        height_in_inches: 000,//user provided, default 72/6ft
+        isInjured: true/false,//default false
+        name: "player name",//user provided
+        shot_direction: "left or right",//user provided
+        weight_in_lbs: 000,//user provided, default 200lbs
+        years_in_pro: 00,//default 0
         stats: [{
-            season: "season",
-            team: "team name",
-            games_played: 82,
-            goals: 10,
-            assists: 20,
-            points: 30,
-            plus_minus: 0,
-            pims: 100,
-            powerplay_goals: 3,
-            short_handed_goals: 1,
-            game_winning_goals: 12,
-            game_tying_goals: 2,
-            hits: 100,
-            shots: 200,
-            shooting_percentage: 5.0,
-            average_time_on_ice: 23,
-            IT: 67,
-            SP: 80,
-            ST: 60,
-            EN: 92,
-            DU: 92,
-            DI: 69,
-            SK: 86,
-            PA: 86,
-            PC: 83,
-            DF: 77,
-            SC: 78,
-            EX: 90,
-            LD: 91,
+            season: "season",//default to current, leagueInfo.id
+            team: "team name",//
+            team_id:"team id",//
+            games_played: 82,//default 0
+            goals: 10,//default 0
+            assists: 20,//default 0
+            points: 30,//default 0
+            plus_minus: 0,//default 0
+            pims: 100,//default 0
+            powerplay_goals: 3,//default 0
+            short_handed_goals: 1,//default 0
+            game_winning_goals: 12,//default 0
+            game_tying_goals: 2,//default 0
+            hits: 100,//default 0
+            shots: 200,//default 0
+            shooting_percentage: 5.0,//default 0
+            average_time_on_ice: 23,//default 0
+            IT: 67,//user provided, default 50
+            SP: 80,//user provided, default 50
+            ST: 60,//user provided, default 50
+            EN: 92,//user provided, default 50
+            DU: 92,//user provided, default 50
+            DI: 69,//user provided, default 50
+            SK: 86,//user provided, default 50
+            PA: 86,//user provided, default 50
+            PC: 83,//user provided, default 50
+            DF: 77,//user provided, default 50
+            SC: 78,//user provided, default 50
+            EX: 90,//user provided, default 50
+            LD: 91,//user provided, default 50
             OV: 83,
-            Salary: 9250000
+            Salary: 9250000//user provided, default 750,000
         }]
     }],
 

@@ -57,6 +57,16 @@ export const MainNavBar = () => {
           return;
         }
         else{
+            
+            try{
+                console.log("MainNavBar>Logging User/Loading use efffect user.uid",user.uid);
+            }
+            catch(e){
+                console.error("graceful exit",e);
+                return;
+            }
+            
+
             let mounted = true;
       
             // get logged in user info

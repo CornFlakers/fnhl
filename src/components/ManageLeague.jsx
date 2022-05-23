@@ -11,6 +11,8 @@ function numberWithCommas(x) {
 
 const ManageLeague = (props) => {
 
+  console.log("ManageLeague.Props",props);
+
   const league_path = props.userInfo.commissioner_for_league.path;
 
   const [leagueInfo, setleagueInfo] = useState({});
@@ -29,12 +31,29 @@ const ManageLeague = (props) => {
   const [awayTeam, setAwayTeam] = useState();
 
   const [playerName, setPlayerName] = useState();//user provided
-  const [playerAge, setPlayerAge] = useState();//user provided
+  const [playerAge, setPlayerAge] = useState(18);//user provided, defualt 18
   const [playerCareerEarnings, setPlayerCareerEarnings] = useState(0);//default 0
   const [playerCondition, setPlayerCondition] = useState(100);//default 100
   const [playerCurrentTeam, setPlayerCurrentTeam] = useState("fTegT7RJrRl57U4FTV9O");//user provided
   const [playerCurrentTeamName, setPlayerCurrentTeamName] = useState("Anaheim");//user provided
   const [playerTeams, setPlayerTeams] = useState([]);
+  const [playerHeight, setPlayerHeight] = useState(72);//default 6ft / 72"
+  const [playerShotDir, setPlayerShotDir] = useState();//user provided
+  const [playerWeight, setPlayerWeight] = useState(200);//user provided, default 200
+  const [playerIT, setPlayerIT] = useState(50);//user provided, default 50
+  const [playerSP, setPlayerSP] = useState(50);//user provided, default 50
+  const [playerST, setPlayerST] = useState(50);//user provided, default 50
+  const [playerEN, setPlayerEN] = useState(50);//user provided, default 50
+  const [playerDU, setPlayerDU] = useState(50);//user provided, default 50
+  const [playerDI, setPlayerDI] = useState(50);//user provided, default 50
+  const [playerSK, setPlayerSK] = useState(50);//user provided, default 50
+  const [playerPA, setPlayerPA] = useState(50);//user provided, default 50
+  const [playerPC, setPlayerPC] = useState(50);//user provided, default 50
+  const [playerDF, setPlayerDF] = useState(50);//user provided, default 50
+  const [playerSC, setPlayerSC] = useState(50);//user provided, default 50
+  const [playerEX, setPlayerEX] = useState(50);//user provided, default 50
+  const [playerLD, setPlayerLD] = useState(50);//user provided, default 50
+  const [playerSalary, setPlayerSalary] = useState(50);//user provided, default 50
 
   //functions
   function setUserSelectOptions(i){
@@ -176,6 +195,10 @@ const ManageLeague = (props) => {
     }    
   },[])
 
+  useEffect( () => {
+    console.log("ManageLeague>LeagueInfo",leagueInfo);
+  }, [leagueInfo])
+
   //run on playerTeams update
   useEffect( () => {
     if(playerTeams.length === 0){
@@ -270,18 +293,52 @@ const ManageLeague = (props) => {
         condition: 100,
         current_team: playerCurrentTeam,
         current_team_value: playerCurrentTeamName,
-        draft: "",
+        draft: "0",
         drafted_at: 0,
-        drafted_by: "team_name",
-        drafted_detail: "1/26, First Round, 26th Overall",
-        height_in_inches: 72,
+        drafted_by: playerCurrentTeamName,
+        drafted_by_id: playerCurrentTeam,
+        drafted_detail: "",
+        height_in_inches: playerHeight? playerHeight : 72,
         isInjured: false,
-        name: playerName,
-        shot_direction: "right",
-        weight_in_lbs: 200,
-        years_in_pro: 1,
+        name: playerName?playerName:"Player",
+        shot_direction: playerShotDir?playerShotDir:"R",
+        weight_in_lbs: playerWeight? playerWeight : 200,
+        years_in_pro: 0,
+        stats:{
+          season:leagueInfo.current_season,
+          team:playerCurrentTeamName,
+          team_id:playerCurrentTeam,
+          games_played:0,
+          goals:0,
+          assists:0,
+          points:0,
+          plus_minus:0,
+          pims:0,
+          powerplay_goals:0,
+          short_handed_goals:0,
+          game_winning_goals:0,
+          game_tying_goals:0,
+          hits:0,
+          shots:0,
+          shooting_percentage:0,
+          average_time_on_ice:0,
+          IT:playerIT?playerIT:50,
+          SP:playerSP?playerSP:50,
+          ST:playerST?playerST:50,
+          EN:playerEN?playerEN:50,
+          DU:playerDU?playerDU:50,
+          DI:playerDI?playerDI:50,
+          SK:playerSK?playerSK:50,
+          PA:playerPA?playerPA:50,
+          PC:playerPC?playerPC:50,
+          DF:playerDF?playerDF:50,
+          SC:playerSC?playerSC:50,
+          EX:playerEX?playerEX:50,
+          LD:playerLD?playerLD:50,
+          Salary:playerSalary?playerSalary:750000
+        }
       }
-      console.log("obj",obj);
+      console.log("ManageLeague>createPlayer",obj);
     }
     else{
       console.log("cancel");
@@ -398,10 +455,8 @@ const ManageLeague = (props) => {
 
         <div>
           <form onSubmit={createPlayer}>
-            <div>
 
-            </div>
-            <div className='text-center border-t-2 mt-4'>
+            <div className='border-t-2 mt-4'>
             {/* doc_id: guid,
         age: 00,
         career_earnings: 50000000, set 0 default
@@ -419,28 +474,108 @@ const ManageLeague = (props) => {
         weight_in_lbs: 000,
         years_in_pro: 00, */}
 
-              
-              <label>Player Name</label>
-              <input type='text' id="player_name" onChange={(e) => setPlayerName(e.target.value)} placeholder="Text..." />
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>Player Name:</h1>
+              <input className='w-[150px] text-right'  type='text' id="player_name" onChange={(e) => setPlayerName(e.target.value)} placeholder="Player Name..." />
+              </div>
 
-              <label>Age</label>
-              <input type='text' id="player_age" onChange={(e) => setPlayerAge(e.target.value)} placeholder="Number..." />
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>Age:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_age" onChange={(e) => setPlayerAge(e.target.value)} placeholder="Age..." />
+              </div>
 
-              <label>Current Team</label>
-              <select id="createPlayerCurrentTeamSelect" onChange={(e) => {
+              <div className='flex justify-center'>
+                <h1 className='w-[150px] text-left'>Current Team:</h1>
+                <select className='w-[150px] text-right' id="createPlayerCurrentTeamSelect" onChange={(e) => {
                   var ele = document.getElementById("createPlayerCurrentTeamSelect");
                   var val = ele.options[ele.selectedIndex].text;
                   setPlayerCurrentTeam(e.target.value);
                   setPlayerCurrentTeamName(val);
                 }}>
-                { playerTeams.map((team) => {
-                    return(
-                      <option value={team.id} key={team.id}>{team.value.name}</option>
-                    )
-                  })
-                }
-              </select>
+                  { playerTeams.map((team) => {
+                      return(
+                        <option value={team.id} key={team.id}>{team.value.name}</option>
+                      )
+                    })
+                  }
+                </select>
+              </div>
 
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>Height (inches):</h1>
+              <input className='w-[150px] text-right' type='text' id="player_height" onChange={(e) => setPlayerHeight(e.target.value)} placeholder="Height (inches)..." />
+              </div>
+
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>Shot Direction:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_shot_dir" onChange={(e) => setPlayerShotDir(e.target.value)} placeholder="L or R..." />
+              </div>
+
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>Weight (lbs):</h1>
+              <input className='w-[150px] text-right' type='text' id="player_weight" onChange={(e) => setPlayerWeight(e.target.value)} placeholder="Weight in lbs..." />
+              </div>
+
+              <div className='flex justify-center'>
+                <h1 className='text-xl font-bold'>Stats</h1>
+              </div>
+
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>IT:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_it" onChange={(e) => setPlayerIT(e.target.value)} placeholder="IT / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>SP:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_sp" onChange={(e) => setPlayerSP(e.target.value)} placeholder="SP / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>ST:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_st" onChange={(e) => setPlayerST(e.target.value)} placeholder="ST / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>EN:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_en" onChange={(e) => setPlayerEN(e.target.value)} placeholder="EN / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>DU:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_du" onChange={(e) => setPlayerDU(e.target.value)} placeholder="DU / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>DI:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_di" onChange={(e) => setPlayerDI(e.target.value)} placeholder="DI / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>SK:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_sk" onChange={(e) => setPlayerSK(e.target.value)} placeholder="SK / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>PA:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_pa" onChange={(e) => setPlayerPA(e.target.value)} placeholder="PA / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>PC:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_pc" onChange={(e) => setPlayerPC(e.target.value)} placeholder="PC / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>DF:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_df" onChange={(e) => setPlayerDF(e.target.value)} placeholder="DF / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>SC:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_sc" onChange={(e) => setPlayerSC(e.target.value)} placeholder="SC / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>EX:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_ex" onChange={(e) => setPlayerEX(e.target.value)} placeholder="EX / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>LD:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_ld" onChange={(e) => setPlayerLD(e.target.value)} placeholder="LD / 99" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>Salary:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_salary" onChange={(e) => setPlayerSalary(e.target.value)} placeholder="no , just nums" />
+              </div>
               {/* TODO: add in the stats here to create the player with a baseload of stats */}
 
 

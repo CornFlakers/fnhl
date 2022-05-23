@@ -4,9 +4,7 @@ import { db } from '../firebase'
 
 const ManageContracts = (props) => {
 
-    console.log("ManageContracts props:",props)
-    console.log("ManageContracts props.team:",props.team,"ManageContracts props.team.id:",props.team.id,"ManageContracts props.team.data:",props.team.data)
-    
+ 
     // const team_id = props.team.id;
     // const team_name = props.team.data.name;
     // const team_code = props.team.data.code;
@@ -31,6 +29,9 @@ const ManageContracts = (props) => {
 
     useEffect( () => {
         console.log("Doing once...");
+        console.log("ManageContracts props:",props)
+        console.log("ManageContracts props.team:",props.team,"ManageContracts props.team.id:",props.team.id,"ManageContracts props.team.data:",props.team.data)
+        
         if(!team_id){
             console.log("Setting Team Id...");
             setTeamId(props.team.id);
@@ -79,15 +80,24 @@ const ManageContracts = (props) => {
         console.log("dbCall:start");
         console.log("Path:",path);
         //db call to get the team contracts information
-        const querySnapshot = getDocs(collection(db, path))
+        
+        getDocs(collection(db, path))
         .then((qSnap) => {
+
+            let ary = [];
+
             qSnap.forEach((document) => {
-                console.log(document,document.id,document.data());
-                setContracts([...contracts,{
+                console.log("a contract was found","document",document,"document.id",document.id,"document.data()",document.data());
+
+                ary.push({
                     id:document.id,
                     value:document.data()
-                }]);
+                })
+                
+                console.log(ary);
             })
+
+            setContracts(ary);
         })
         .then(() => {
             console.log("db called resolved");
@@ -98,9 +108,15 @@ const ManageContracts = (props) => {
     }
 
     useEffect( () => {
-        if(contracts){
-            console.log("contracts object updated",contracts);
+        if(contracts.length !== 0){
+            console.log("useEffect>contracts>if contracts.length !== 0 ... contracts object updated",contracts);
         }
+        else{
+            console.log("useEffect>contracts>else contracts object updated",contracts);
+        }
+
+        console.log("useEffect>contracts>",contracts.length);
+
         
     }, [contracts])
 

@@ -1,4 +1,4 @@
-import { collection, collectionGroup, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, collectionGroup, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
 import { auth, db } from '../firebase';
 import Select from 'react-select';
@@ -53,7 +53,8 @@ const ManageLeague = (props) => {
   const [playerSC, setPlayerSC] = useState(50);//user provided, default 50
   const [playerEX, setPlayerEX] = useState(50);//user provided, default 50
   const [playerLD, setPlayerLD] = useState(50);//user provided, default 50
-  const [playerSalary, setPlayerSalary] = useState(50);//user provided, default 50
+  const [playerSalary, setPlayerSalary] = useState(750000);//user provided, default 750 000
+  const [playerPosition, setPlayerPosition] = useState("F");//user provided, default F
 
   //functions
   function setUserSelectOptions(i){
@@ -96,12 +97,13 @@ const ManageLeague = (props) => {
         let i = {};
 
         data.forEach((doc) => {
-          
+
           i.name = doc.data().name;
           i.salary_cap = numberWithCommas(doc.data().salary_cap);
           i.commissioner = doc.data().commissioner.id;
           i.current_season = doc.data().current_season;
           i.id = doc.id;
+          i.path = doc.ref.path;
 
           setleagueInfo(i);
 
@@ -284,65 +286,171 @@ const ManageLeague = (props) => {
     setAwayTeam(e)
   }
 
+  //a function to create the player, when the user clicks in the ui after filling in form
   const createPlayer = (e) => {
-    e.preventDefault()
+    e.preventDefault();
+
+    //build out the player object based on input from form/
+    let player = buildPlayerObj();
+    console.log("ManageLeague>createPlayer",player);
+
+    //log to console for opt to review and confirm
     if(window.confirm("Are you sure you want to Create this Player?")){
-      let obj = {
-        age: playerAge,
-        career_earnings: 0,
-        condition: 100,
-        current_team: playerCurrentTeam,
-        current_team_value: playerCurrentTeamName,
-        draft: "0",
-        drafted_at: 0,
-        drafted_by: playerCurrentTeamName,
-        drafted_by_id: playerCurrentTeam,
-        drafted_detail: "",
-        height_in_inches: playerHeight? playerHeight : 72,
-        isInjured: false,
-        name: playerName?playerName:"Player",
-        shot_direction: playerShotDir?playerShotDir:"R",
-        weight_in_lbs: playerWeight? playerWeight : 200,
-        years_in_pro: 0,
-        stats:{
-          season:leagueInfo.current_season,
-          team:playerCurrentTeamName,
-          team_id:playerCurrentTeam,
-          games_played:0,
-          goals:0,
-          assists:0,
-          points:0,
-          plus_minus:0,
-          pims:0,
-          powerplay_goals:0,
-          short_handed_goals:0,
-          game_winning_goals:0,
-          game_tying_goals:0,
-          hits:0,
-          shots:0,
-          shooting_percentage:0,
-          average_time_on_ice:0,
-          IT:playerIT?playerIT:50,
-          SP:playerSP?playerSP:50,
-          ST:playerST?playerST:50,
-          EN:playerEN?playerEN:50,
-          DU:playerDU?playerDU:50,
-          DI:playerDI?playerDI:50,
-          SK:playerSK?playerSK:50,
-          PA:playerPA?playerPA:50,
-          PC:playerPC?playerPC:50,
-          DF:playerDF?playerDF:50,
-          SC:playerSC?playerSC:50,
-          EX:playerEX?playerEX:50,
-          LD:playerLD?playerLD:50,
-          Salary:playerSalary?playerSalary:750000
-        }
-      }
-      console.log("ManageLeague>createPlayer",obj);
+      //user wants to create the player, proceed.
+      let dbPlayerCreateResult = dbPlayerCreate(player);
+      console.log(dbPlayerCreateResult);
     }
     else{
       console.log("cancel");
     }
+  }
+
+  //function to create the player in the db and assign them to a team if applicable, updating a teams contracts
+  function dbPlayerCreate(player){
+    console.log("dbPlayerCreate>player",player);
+
+    //update firestore players collection
+    try{
+      //write an update to the players collection of the league as a new player has been added to the league
+      //and potentially to a particular team
+      let newPlayerRef = doc(collection(db, league_path+"/players"));
+      setDoc(newPlayerRef,{
+        age: player.age,
+        career_earnings: player.career_earnings,
+        condition: player.condition,
+        current_team: player.current_team,
+        current_team_value: player.current_team_value,
+        draft: player.draft,
+        drafted_at: player.drafted_at,
+        drafted_by: player.drafted_by,
+        drafted_by_id: player.drafted_by_id,
+        drafted_detail: player.drafted_detail,
+        height_in_inches: player.height_in_inches,
+        isInjured: player.isInjured,
+        name: player.name,
+        position: player.position,
+        shot_direction: player.shot_direction,
+        weight_in_lbs: player.weight_in_lbs,
+        years_in_pro: player.years_in_pro
+      })
+      .then( () => {
+        console.log("dbPlayerCreate>player creation write complete",);
+        //time to write the players stats record
+        addDoc(collection(db,newPlayerRef.path+"/stats"),{
+          DF: player.stats.DF,
+          DI: player.stats.DI,
+          DU: player.stats.DU,
+          EN: player.stats.EN,
+          EX: player.stats.EX,
+          IT: player.stats.IT,
+          LD: player.stats.LD,
+          PA: player.stats.PA,
+          PC: player.stats.PC,
+          SC: player.stats.SC,
+          SK: player.stats.SK,
+          SP: player.stats.SP,
+          ST: player.stats.ST,
+          salary: player.stats.salary,
+          assists: player.stats.assists,
+          average_time_on_ice: player.stats.average_time_on_ice,
+          game_tying_goals: player.stats.game_tying_goals,
+          game_winning_goals: player.stats.game_winning_goals,
+          games_played: player.stats.games_played,
+          goals: player.stats.goals,
+          hits: player.stats.hits,
+          pims: player.stats.pims,
+          plus_minus: player.stats.plus_minus,
+          points: player.stats.points,
+          powerplay_goals: player.stats.powerplay_goals,
+          season: player.stats.season,
+          shooting_percentage: player.stats.shooting_percentage,
+          short_handed_goals: player.stats.short_handed_goals,
+          shots: player.stats.shots,
+          team: player.stats.team,
+          team_id: player.stats.team_id
+        })
+        .then( () => {
+          console.log("dbPlayerCreate>stats created/updated")
+          console.log("dbPlayerCreate>player creation stat creation complete");
+          //time to write to the teams contracts if applicable
+          addDoc(collection(db,leagueInfo.path+"/teams/"+player.current_team+"/contracts"),{
+            jersery_number:0,
+            level:"Professional",
+            player_id:newPlayerRef,
+            player_name:player.name,
+            position:player.position,
+            salary:player.stats.salary,
+            season:player.stats.season
+          })
+          .then(()=>{
+            console.log("contracts record updated")
+          })
+        })
+        .then( () => {
+          return "dbPlayerCreate>success";
+        });
+      })
+    }
+    catch(e){
+      console.error(e);
+      return "dbPlayerCreate>fail";
+    }
+  }
+
+  function buildPlayerObj(){
+    let obj = {
+      age: playerAge,
+      career_earnings: 0,
+      condition: 100,
+      current_team: playerCurrentTeam,
+      current_team_value: playerCurrentTeamName,
+      draft: "0",
+      drafted_at: 0,
+      drafted_by: playerCurrentTeamName,
+      drafted_by_id: playerCurrentTeam,
+      drafted_detail: "",
+      height_in_inches: playerHeight? playerHeight : 72,
+      isInjured: false,
+      name: playerName?playerName:"Player",
+      position: playerPosition?playerPosition:"F",
+      shot_direction: playerShotDir?playerShotDir:"R",
+      weight_in_lbs: playerWeight? playerWeight : 200,
+      years_in_pro: 0,
+      stats:{
+        season:leagueInfo.current_season,
+        team:playerCurrentTeamName,
+        team_id:playerCurrentTeam,
+        games_played:0,
+        goals:0,
+        assists:0,
+        points:0,
+        plus_minus:0,
+        pims:0,
+        powerplay_goals:0,
+        short_handed_goals:0,
+        game_winning_goals:0,
+        game_tying_goals:0,
+        hits:0,
+        shots:0,
+        shooting_percentage:0,
+        average_time_on_ice:0,
+        IT:playerIT?playerIT:50,
+        SP:playerSP?playerSP:50,
+        ST:playerST?playerST:50,
+        EN:playerEN?playerEN:50,
+        DU:playerDU?playerDU:50,
+        DI:playerDI?playerDI:50,
+        SK:playerSK?playerSK:50,
+        PA:playerPA?playerPA:50,
+        PC:playerPC?playerPC:50,
+        DF:playerDF?playerDF:50,
+        SC:playerSC?playerSC:50,
+        EX:playerEX?playerEX:50,
+        LD:playerLD?playerLD:50,
+        salary:playerSalary?playerSalary:750000
+      }
+    }
+    return obj;
   }
 
   const clearPlayerForm = (e) => {
@@ -575,6 +683,10 @@ const ManageLeague = (props) => {
               <div className='flex justify-center'>
               <h1 className='w-[150px] text-left'>Salary:</h1>
               <input className='w-[150px] text-right' type='text' id="player_salary" onChange={(e) => setPlayerSalary(e.target.value)} placeholder="no , just nums" />
+              </div>
+              <div className='flex justify-center'>
+              <h1 className='w-[150px] text-left'>Position:</h1>
+              <input className='w-[150px] text-right' type='text' id="player_position" onChange={(e) => setPlayerPosition(e.target.value)} placeholder="F,D,G" />
               </div>
               {/* TODO: add in the stats here to create the player with a baseload of stats */}
 

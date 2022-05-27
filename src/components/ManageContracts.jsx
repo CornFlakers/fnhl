@@ -1,6 +1,7 @@
 import { collection, getDocs } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
 import { db } from '../firebase'
+import Popup from './Popup'
 
 const ManageContracts = (props) => {
 
@@ -93,7 +94,7 @@ const ManageContracts = (props) => {
                     id:document.id,
                     value:document.data()
                 })
-                
+
                 console.log(ary);
             })
 
@@ -128,13 +129,13 @@ const ManageContracts = (props) => {
         
         if(ele.classList.contains("active")){
             //style it as active, selected
-            ele.className = "w-full h-10 bg-slate-500 text-white hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white active"
+            ele.className = "w-full h-12 border-2 bg-slate-500 text-white hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white active"
             setSelectedContracts(selectedContracts => [...selectedContracts,contract])
         }
         else{
             //style it as deselected
             setSelectedContracts(selectedContracts.filter(contracts => contracts.id !== contract.id));
-            ele.className = "w-full h-10 bg-white text-black"
+            ele.className = "w-full h-12 border-2 bg-white text-black"
         }
 
         console.log("ele",ele);
@@ -146,78 +147,83 @@ const ManageContracts = (props) => {
         }
     },[selectedContracts])
     
+    const handleRosterControl = (action) => {
+        console.log(action);
+    }
 
-  return (
-      <div className='border-2'>
-          
-            <div className='w-full'> 
-                <h1 className='w-full '>List of players under contract</h1>
-                <div className='w-full'>
-                    <ul className='w-full flex justify-evenly'>
-                    {contracts.map(contract => {
-                        return(
-                            <li key={contract.id} className='w-full'>
-                                <button 
-                                    id={contract.id}
-                                    className="w-full h-10"
-                                    onClick={()=>handleClick(contract)}>
-                                        {contract.value.player_name}                        
-                                </button>
+    return (
+
+        <Popup trigger={props.trigger} setTrigger={props.setTrigger}>
+            <div className='w-1/3'> 
+                    <h1 className='w-full font-bold pt-2 text-xs'>Game Roster</h1>
+                    <div className='w-full'>
+                        <ul className='w-full flex flex-col justify-evenly px-2'>
+                        {contracts.map(contract => {
+                            return(
+                                <li key={contract.id} className='w-full'>
+                                    <button 
+                                        id={contract.id}
+                                        className="w-full h-12 border-2"
+                                        onClick={()=>handleClick(contract)}>
+                                            {contract.value.player_name}                        
+                                    </button>
+                                </li>
+                            )
+                        })}
+                        </ul>
+                        <ul>
+                            <li>
+                                Hi
                             </li>
-                        )
-                    })}
-                    </ul>
-                </div>
-            </div>
-
-            <div>
-                <h1>Selected Contracts</h1>
-                    <div className='flex'>
-                    {selectedContracts.map( (selectedContract,index) => {
-                        return(
-                            <h1 key={selectedContract.id}>{index>0 && ","}{selectedContract.value.player_name}</h1>
-                        )
-                    })}
+                        </ul>
                     </div>
-
-            </div>
-
-            <div className='border-2 border-yellow-400'>
-                <h1 className='font-bold text-lg'>Controls</h1>
-                <div className='flex'>
-                    <button className='border-2 w-full'>Add</button>
-                    <button className='border-2 w-full'>Remove</button>
-                    <button className='border-2 w-full'>Clear</button>
                 </div>
-            </div>
 
-            <div className='border-2 border-red-500'>
-                <h1 className='font-bold text-lg'>Game Roster</h1>
-                <div className=''>
-                    <ul className='flex p-2 justify-evenly'>
-                        <li className='border-2 w-full'>
-                            Player 1
-                        </li>
-                        <li className='border-2 w-full'>
-                            Player 2
-                        </li>
-                        <li className='border-2 w-full'>
-                            Player 3
-                        </li>
-                        <li className='border-2 w-full'>
-                            Player 4
-                        </li>
-                        <li className='border-2 w-full'>
-                            Player 5
-                        </li>
-                    </ul>
+                <div>
+                    <h1>Selected Contracts</h1>
+                        <div className='flex'>
+                        {selectedContracts.map( (selectedContract,index) => {
+                            return(
+                                <h1 key={selectedContract.id}>{index>0 && ","}{selectedContract.value.player_name}</h1>
+                            )
+                        })}
+                        </div>
+
                 </div>
-            </div>
 
+                <div className='border-2 border-yellow-400'>
+                    <h1 className='font-bold text-lg'>Controls</h1>
+                    <div className='flex'>
+                        <button className='border-2 w-full' onClick={()=>handleRosterControl('add')}>Add</button>
+                        <button className='border-2 w-full'>Remove</button>
+                        <button className='border-2 w-full'>Clear</button>
+                    </div>
+                </div>
 
-      </div>
-    
-  )
+                <div className='border-2 border-red-500'>
+                    <h1 className='font-bold text-lg'>Game Roster</h1>
+                    <div className=''>
+                        <ul className='flex p-2 justify-evenly'>
+                            <li className='border-2 w-full'>
+                                Player 1
+                            </li>
+                            <li className='border-2 w-full'>
+                                Player 2
+                            </li>
+                            <li className='border-2 w-full'>
+                                Player 3
+                            </li>
+                            <li className='border-2 w-full'>
+                                Player 4
+                            </li>
+                            <li className='border-2 w-full'>
+                                Player 5
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+        </Popup>
+    )
 }
 
 export default ManageContracts

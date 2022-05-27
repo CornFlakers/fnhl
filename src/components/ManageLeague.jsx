@@ -7,7 +7,19 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+/*
+Clicking Manage Rosters will load this pop-up.
+  build it like: https://fnhlonline.com/gmeditor/
+  no auto or protect buttons required.
 
+  once you have a valid roster,
+  grey out button,
+  once you have valid roster, let them click 'manage lines'
+
+  manage lines should load in a pop-ip
+  rosters must be under cap
+
+*/
 
 const ManageLeague = (props) => {
 
@@ -114,21 +126,21 @@ const ManageLeague = (props) => {
     //usersSnapshot: query the db for a list of all users, regardless if they are a gm or not
     try{
       const userQ = query(collection(db,"users"), where("isGM", "==", false));
-      const usersSnapshot = getDocs(userQ).then((data) => {
-
-        if(mounted){
-          let i = [];
-  
-          data.forEach((doc) => {
-            i.push({
-              id: doc.id,
-              data: doc.data()
-            });
+      const usersSnapshot = 
+        getDocs(userQ)
+          .then((querySnapshot) => {
+            let i = [];
+            
+            querySnapshot.forEach((doc) => {
+              i.push({
+                doc: doc,
+                id: doc.id,
+                data: doc.data()
+              });
+            })
+            
+            setAvailableUsers(i);
           })
-          
-          setAvailableUsers(i);
-        }
-      })
     }
     catch(e){
       console.error("userQ/usersSnapshot error:",e);

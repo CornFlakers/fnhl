@@ -49,13 +49,12 @@ const ManageTeam = (props) => {
 
         <button 
           className={` w-full h-10 ${manageContracts? "bg-slate-500 text-white":"hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white"}`}
-          onClick={() => {
-            setManageContracts(!manageContracts);}}>    
+          onClick={() => {setManageContracts(!manageContracts);}}>    
           Manage Contracts
         </button>
         
         {manageContracts &&
-          <ManageContracts team={team} league={league_id} />
+          <ManageContracts team={team} league={league_id} trigger={manageContracts} setTrigger={setManageContracts}/>
         }
         
       </div>

@@ -154,10 +154,10 @@ const ManageContracts = (props) => {
     return (
 
         <Popup trigger={props.trigger} setTrigger={props.setTrigger}>
-            <div className='w-1/3'> 
-                    <h1 className='w-full font-bold pt-2 text-xs'>Game Roster</h1>
-                    <div className='w-full'>
-                        <ul className='w-full flex flex-col justify-evenly px-2'>
+            <div className='pointer-events-auto w-1/3'> 
+                <h1 className='w-full font-bold pt-2 text-xs'>Game Roster</h1>
+                <div className='w-full'>
+                    <ul className='w-full flex flex-col justify-evenly px-2'>
                         {contracts.map(contract => {
                             return(
                                 <li key={contract.id} className='w-full'>
@@ -170,26 +170,20 @@ const ManageContracts = (props) => {
                                 </li>
                             )
                         })}
-                        </ul>
-                        <ul>
-                            <li>
-                                Hi
-                            </li>
-                        </ul>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                <h1>Selected Contracts</h1>
+                    <div className='flex'>
+                    {selectedContracts.map( (selectedContract,index) => {
+                        return(
+                            <h1 key={selectedContract.id}>{index>0 && ","}{selectedContract.value.player_name}</h1>
+                        )
+                    })}
                     </div>
-                </div>
 
-                <div>
-                    <h1>Selected Contracts</h1>
-                        <div className='flex'>
-                        {selectedContracts.map( (selectedContract,index) => {
-                            return(
-                                <h1 key={selectedContract.id}>{index>0 && ","}{selectedContract.value.player_name}</h1>
-                            )
-                        })}
-                        </div>
-
-                </div>
+            </div>
 
                 <div className='border-2 border-yellow-400'>
                     <h1 className='font-bold text-lg'>Controls</h1>

@@ -42,7 +42,7 @@ const ManageTeam = (props) => {
   return (
     <div className='mt-2'>
       {team.data && 
-      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center'>
+      <div className='pointer-events-auto shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center'>
         <h1 className='text-center text-lg font-bold'>
           {team.data.name}
         </h1>

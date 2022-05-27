@@ -23,7 +23,7 @@ import ManageTeam from './components/ManageTeam'
 import {ErrorBoundary} from './components/ErrorBoundary.jsx'
 function App() {
   return (
-    <div className='App bg-gray-100'>
+    <div className='App bg-gray-100 h-screen w-screen'>
       <AuthContextProvider>
         <div className='fixed w-full top-0 z-40'>
         <NavBar />  

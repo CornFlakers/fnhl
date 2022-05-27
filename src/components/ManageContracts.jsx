@@ -123,19 +123,19 @@ const ManageContracts = (props) => {
 
     const handleClick = (contract) => {
         console.log("click ...",contract)
+        
         let ele = document.getElementById(contract.id);
         ele.classList.toggle("active")
-
         
         if(ele.classList.contains("active")){
             //style it as active, selected
-            ele.className = "w-full h-12 border-2 bg-slate-500 text-white hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white active"
             setSelectedContracts(selectedContracts => [...selectedContracts,contract])
+            ele.className = "w-48 text-left text-xs whitespace-nowrap bg-slate-500 text-white active"
         }
         else{
             //style it as deselected
             setSelectedContracts(selectedContracts.filter(contracts => contracts.id !== contract.id));
-            ele.className = "w-full h-12 border-2 bg-white text-black"
+            ele.className = "w-48 text-left text-xs whitespace-nowrap bg-white"
         }
 
         console.log("ele",ele);
@@ -155,13 +155,69 @@ const ManageContracts = (props) => {
 
         <Popup trigger={props.trigger} setTrigger={props.setTrigger}>
             
-            <div className='h-[500px] mt-6'>
+            <div className='relative left-0 top-5 w-screen sm:max-w-4xl h-[600px] p-2'>
+
+                <div className='bg-white'>
+                    <h1 className='text-left text-xs font-bold p-1'>{selectedContracts.length} Total Players</h1>
+
+                    <div className='flex p-2 pt-0'>
+                        <div className='flex'>
+                            <div className='flex flex-col'>    
+                                <h1 className='font-bold text-xs text-left'>Game Roster</h1>
+                                <div className='w-52 h-56 border-2 overflow-y-scroll'>
+                                    <ul className='w-full flex flex-col justify-evenly'>
+                                        {contracts.map(contract => {
+                                            return(
+                                                <li key={contract.id} className='w-full p-0 m-0'>
+                                                    <button 
+                                                        id={contract.id}
+                                                        className="w-48 text-left text-xs whitespace-nowrap m-0 p-0"
+                                                        onClick={()=>handleClick(contract)}>
+                                                            {contract.value.player_name}                        
+                                                    </button>
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className='flex w-full p-2 items-center justify-center'>
+                                <button className='w-full border-2 p-4 text-center'>Scratch</button>
+                            </div>
+                        </div>
+                        <div className='flex'>
+                            <div className='flex flex-col'>    
+                                <h1 className='font-bold text-xs text-left'>Scratches</h1>
+                                <div className='w-52 h-56 border-2 overflow-y-scroll'>
+                                    <ul className='w-full flex flex-col justify-evenly'>
+                                        {contracts.map(contract => {
+                                            return(
+                                                <li key={contract.id} className='w-full p-0 m-0'>
+                                                    <button 
+                                                        id={contract.id}
+                                                        className="w-48 text-left text-xs whitespace-nowrap m-0 p-0"
+                                                        onClick={()=>handleClick(contract)}>
+                                                            {contract.value.player_name}                        
+                                                    </button>
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className='flex w-full p-2 items-center justify-center'>
+                                <button className='w-full border-2 p-4 text-center'>Scratch</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 
-                <div className='flex'>
-                    <div className='w-1/3 bg-white text-black'> 
-                        <h1 className='w-full font-bold pt-2 text-xs'>Game Roster</h1>
-                        <div className='w-full border-2'>
-                            <ul className='w-full flex flex-col justify-evenly'>
+                <div className='flex flex-col w-5/6 justify-evenly items-center'>
+                    <div className='w-full bg-white text-black p-1'> 
+                        <h1 className='w-48 font-bold pt-2 text-xs'>Game Roster</h1>
+                        <div className='w-48 border-2 h-32 overflow-y-scroll'>
+                            <ul className='w-48 flex flex-col justify-evenly'>
                                 {contracts.map(contract => {
                                     return(
                                         <li key={contract.id} className='w-full'>
@@ -177,10 +233,10 @@ const ManageContracts = (props) => {
                             </ul>
                         </div>
                     </div>
-                    <div className='w-1/3 bg-white text-black'> 
-                        <h1 className='w-full font-bold pt-2 text-xs'>Scratches</h1>
-                        <div className='w-full border-2'>
-                            <ul className='w-full flex flex-col justify-evenly'>
+                    <div className='w-48 bg-white text-black p-1'> 
+                        <h1 className='w-48 font-bold pt-2 text-xs'>Scratches</h1>
+                        <div className='w-48 border-2 h-32 overflow-y-scroll'>
+                            <ul className='w-48 flex flex-col justify-evenly'>
                                 {contracts.map(contract => {
                                     return(
                                         <li key={contract.id} className='w-full'>
@@ -196,10 +252,10 @@ const ManageContracts = (props) => {
                             </ul>
                         </div>
                     </div>
-                    <div className='w-1/3 bg-white text-black'> 
-                        <h1 className='w-full font-bold pt-2 text-xs'>Farm Roster</h1>
-                        <div className='w-full border-2'>
-                            <ul className='w-full flex flex-col justify-evenly'>
+                    <div className='w-48 bg-white text-black p-1'> 
+                        <h1 className='w-48 font-bold pt-2 text-xs'>Farm Roster</h1>
+                        <div className='w-48 border-2 h-32 overflow-y-scroll'>
+                            <ul className='w-48 flex flex-col justify-evenly'>
                                 {contracts.map(contract => {
                                     return(
                                         <li key={contract.id} className='w-full'>
@@ -215,6 +271,9 @@ const ManageContracts = (props) => {
                             </ul>
                         </div>
                     </div>
+                </div>
+                <div className='justify-evenly items-center'>
+                    Hi
                 </div>
                 
 
@@ -260,6 +319,9 @@ const ManageContracts = (props) => {
                             </ul>
                         </div>
                     </div>
+                </div>
+                <div>
+                    hi
                 </div>
             </div>
         </Popup>

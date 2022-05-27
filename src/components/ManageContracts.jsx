@@ -154,16 +154,16 @@ const ManageContracts = (props) => {
     return (
 
         <Popup trigger={props.trigger} setTrigger={props.setTrigger}>
-            <div className='pointer-events-auto w-1/3'> 
+            <div className='w-1/3 bg-white text-black'> 
                 <h1 className='w-full font-bold pt-2 text-xs'>Game Roster</h1>
-                <div className='w-full'>
-                    <ul className='w-full flex flex-col justify-evenly px-2'>
+                <div className='w-full border-2'>
+                    <ul className='w-full flex flex-col justify-evenly'>
                         {contracts.map(contract => {
                             return(
                                 <li key={contract.id} className='w-full'>
                                     <button 
                                         id={contract.id}
-                                        className="w-full h-12 border-2"
+                                        className="w-full text-xs whitespace-nowrap"
                                         onClick={()=>handleClick(contract)}>
                                             {contract.value.player_name}                        
                                     </button>

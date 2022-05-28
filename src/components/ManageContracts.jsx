@@ -26,6 +26,12 @@ const ManageContracts = (props) => {
     const [gm_id, setGMId] = useState();
     const [league_id, setLeagueId] = useState();
     const [path, setPath] = useState();
+    const [selectedGameRosterPlayers, setSelectedGameRosterPlayers] = useState([]);
+    const [gameRosterPlayers, setGameRosterPlayers] = useState([]);
+    const [selectedFarmRosterPlayers, setSelectedFarmRosterPlayers] = useState([]);
+    const [farmRosterPlayers, setFarmRosterPlayers] = useState([]);
+    const [selectedScratchedPlayers, setSelectedScratchedPlayers] = useState([]);
+    const [scratchedRosterPlayers, setScratchedRosterPlayers] = useState([]);
     
 
     useEffect( () => {
@@ -86,6 +92,9 @@ const ManageContracts = (props) => {
         .then((qSnap) => {
 
             let ary = [];
+            let aryGameRosterPlayers = [];
+            let aryFarmRosterPlayers = [];
+            let aryScratchedPlayers = [];
 
             qSnap.forEach((document) => {
                 console.log("a contract was found","document",document,"document.id",document.id,"document.data()",document.data());
@@ -95,10 +104,34 @@ const ManageContracts = (props) => {
                     value:document.data()
                 })
 
+                let level = document.data().level;
+
+                if(level == "Professional"){
+                    aryGameRosterPlayers.push({
+                        id:document.id,
+                        value:document.data()
+                    })
+                }
+                else if(level == "Farm"){
+                    aryFarmRosterPlayers.push({
+                        id:document.id,
+                        value:document.data()
+                    })
+                }
+                else if(level == "Scratched"){
+                    aryScratchedPlayers.push({
+                        id:document.id,
+                        value:document.data()
+                    })
+                }
+
                 console.log(ary);
             })
 
             setContracts(ary);
+            setGameRosterPlayers(aryGameRosterPlayers);
+            setFarmRosterPlayers(aryFarmRosterPlayers);
+            setScratchedRosterPlayers(aryScratchedPlayers);
         })
         .then(() => {
             console.log("db called resolved");
@@ -121,34 +154,48 @@ const ManageContracts = (props) => {
         
     }, [contracts])
 
-    const handleClick = (contract) => {
+    const handleClick = (contract, section) => {
         console.log("click ...",contract)
         
         let ele = document.getElementById(contract.id);
         ele.classList.toggle("active")
         
-        if(ele.classList.contains("active")){
-            //style it as active, selected
-            setSelectedContracts(selectedContracts => [...selectedContracts,contract])
-            ele.className = "w-48 text-left text-xs whitespace-nowrap bg-slate-500 text-white active"
+        if(section == "gameRoster"){
+
+            if(ele.classList.contains("active")){
+                //style it as active, selected
+                ele.className = "w-48 text-left text-xs whitespace-nowrap bg-slate-500 text-white active"
+                setSelectedGameRosterPlayers(selectedGameRosterPlayers => [...selectedGameRosterPlayers, contract])
+            }
+            else{
+                //style it as deselected
+                ele.className = "w-48 text-left text-xs whitespace-nowrap bg-white"
+                setSelectedGameRosterPlayers(selectedGameRosterPlayers.filter(gameRosterPlayers => gameRosterPlayers.id !== contract.id));
+                
+            }
         }
-        else{
-            //style it as deselected
-            setSelectedContracts(selectedContracts.filter(contracts => contracts.id !== contract.id));
-            ele.className = "w-48 text-left text-xs whitespace-nowrap bg-white"
-        }
+
+        
 
         console.log("ele",ele);
     }
 
     useEffect(()=>{
         if(selectedContracts.length > 0){
-            console.log("selected contracts",selectedContracts);
+            console.log("selected contracts",selectedContracts.length);
         }
     },[selectedContracts])
     
     const handleRosterControl = (action) => {
         console.log(action);
+    }
+
+    const ScratchPlayers = () => {
+        alert("Scratching"+JSON.stringify(selectedGameRosterPlayers));
+        
+        //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
+        setSelectedGameRosterPlayers([]);
+        return;
     }
 
     return (
@@ -158,15 +205,38 @@ const ManageContracts = (props) => {
             <div className='relative left-0 top-5 w-screen sm:max-w-4xl h-[600px] p-2'>
 
                 <div className='bg-white'>
-                    <h1 className='text-left text-xs font-bold p-1'>{selectedContracts.length} Total Players</h1>
-
-                    <div className='flex p-2 pt-0'>
-                        <div className='flex'>
+                    <h1 className='text-left text-xs font-bold p-1'>{gameRosterPlayers.length} Total Players</h1>
+                        <div className='flex p-2 pt-0'>
                             <div className='flex flex-col'>    
                                 <h1 className='font-bold text-xs text-left'>Game Roster</h1>
                                 <div className='w-52 h-56 border-2 overflow-y-scroll'>
                                     <ul className='w-full flex flex-col justify-evenly'>
-                                        {contracts.map(contract => {
+                                        {gameRosterPlayers.map(contract => {
+                                            return(
+                                                <li key={contract.id} className='w-full p-0 m-0'>
+                                                    <button 
+                                                        id={contract.id}
+                                                        className="w-48 text-left text-xs whitespace-nowrap m-0 p-0"
+                                                        onClick={()=>handleClick(contract,"gameRoster")}>
+                                                            {contract.value.player_name}                        
+                                                    </button>
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className='flex w-full p-2 items-center justify-center'>
+                                <button className='w-28 border-2 p-2 text-center' onClick={()=>ScratchPlayers()}>Scratch</button>
+                            </div>
+                        </div>
+
+                        <div className='flex p-2 pt-0'>
+                            <div className='flex flex-col'>    
+                                <h1 className='font-bold text-xs text-left'>Scratches</h1>
+                                <div className='w-52 h-56 border-2 overflow-y-scroll'>
+                                    <ul className='w-full flex flex-col justify-evenly'>
+                                        {scratchedRosterPlayers.map(contract => {
                                             return(
                                                 <li key={contract.id} className='w-full p-0 m-0'>
                                                     <button 
@@ -181,16 +251,18 @@ const ManageContracts = (props) => {
                                     </ul>
                                 </div>
                             </div>
-                            <div className='flex w-full p-2 items-center justify-center'>
-                                <button className='w-full border-2 p-4 text-center'>Scratch</button>
+                            <div className='flex flex-col w-full p-2 items-center justify-evenly'>
+                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap'>Dress</button>
+                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap'>Send to Farm</button>
                             </div>
                         </div>
-                        <div className='flex'>
+
+                        <div className='flex p-2 pt-0'>
                             <div className='flex flex-col'>    
-                                <h1 className='font-bold text-xs text-left'>Game Roster</h1>
+                                <h1 className='font-bold text-xs text-left'>Farm Roster</h1>
                                 <div className='w-52 h-56 border-2 overflow-y-scroll'>
                                     <ul className='w-full flex flex-col justify-evenly'>
-                                        {contracts.map(contract => {
+                                        {farmRosterPlayers.map(contract => {
                                             return(
                                                 <li key={contract.id} className='w-full p-0 m-0'>
                                                     <button 
@@ -205,75 +277,10 @@ const ManageContracts = (props) => {
                                     </ul>
                                 </div>
                             </div>
-                            <div className='flex w-full p-2 items-center justify-center'>
-                                <button className='w-full border-2 p-4 text-center'>Scratch</button>
+                            <div className='flex flex-col w-full p-2 items-center justify-evenly'>
+                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap'>Send to Pro</button>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                
-                <div className='flex flex-col w-5/6 justify-evenly items-center'>
-                    <div className='w-full bg-white text-black p-1'> 
-                        <h1 className='w-48 font-bold pt-2 text-xs'>Game Roster</h1>
-                        <div className='w-48 border-2 h-32 overflow-y-scroll'>
-                            <ul className='w-48 flex flex-col justify-evenly'>
-                                {contracts.map(contract => {
-                                    return(
-                                        <li key={contract.id} className='w-full'>
-                                            <button 
-                                                id={contract.id}
-                                                className="w-full text-xs whitespace-nowrap"
-                                                onClick={()=>handleClick(contract)}>
-                                                    {contract.value.player_name}                        
-                                            </button>
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                        </div>
-                    </div>
-                    <div className='w-48 bg-white text-black p-1'> 
-                        <h1 className='w-48 font-bold pt-2 text-xs'>Scratches</h1>
-                        <div className='w-48 border-2 h-32 overflow-y-scroll'>
-                            <ul className='w-48 flex flex-col justify-evenly'>
-                                {contracts.map(contract => {
-                                    return(
-                                        <li key={contract.id} className='w-full'>
-                                            <button 
-                                                id={contract.id}
-                                                className="w-full text-xs whitespace-nowrap"
-                                                onClick={()=>handleClick(contract)}>
-                                                    {contract.value.player_name}                        
-                                            </button>
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                        </div>
-                    </div>
-                    <div className='w-48 bg-white text-black p-1'> 
-                        <h1 className='w-48 font-bold pt-2 text-xs'>Farm Roster</h1>
-                        <div className='w-48 border-2 h-32 overflow-y-scroll'>
-                            <ul className='w-48 flex flex-col justify-evenly'>
-                                {contracts.map(contract => {
-                                    return(
-                                        <li key={contract.id} className='w-full'>
-                                            <button 
-                                                id={contract.id}
-                                                className="w-full text-xs whitespace-nowrap"
-                                                onClick={()=>handleClick(contract)}>
-                                                    {contract.value.player_name}                        
-                                            </button>
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div className='justify-evenly items-center'>
-                    Hi
                 </div>
                 
 

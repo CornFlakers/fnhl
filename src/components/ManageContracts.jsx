@@ -187,7 +187,7 @@ const ManageContracts = (props) => {
                         </div>
                         <div className='flex'>
                             <div className='flex flex-col'>    
-                                <h1 className='font-bold text-xs text-left'>Scratches</h1>
+                                <h1 className='font-bold text-xs text-left'>Game Roster</h1>
                                 <div className='w-52 h-56 border-2 overflow-y-scroll'>
                                     <ul className='w-full flex flex-col justify-evenly'>
                                         {contracts.map(contract => {

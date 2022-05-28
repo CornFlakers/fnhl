@@ -50,7 +50,7 @@ const ManageTeam = (props) => {
         <button 
           className={` w-full h-10 ${manageContracts? "bg-slate-500 text-white":"hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white"}`}
           onClick={() => {setManageContracts(!manageContracts);}}>    
-          Manage Contracts
+          Manage Roster
         </button>
         
         {manageContracts &&

@@ -1,4 +1,5 @@
-import { collection, getDocs } from 'firebase/firestore'
+
+import Firebase, {collection, getDocs, doc, updateDoc } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
 import { db } from '../firebase'
 import Popup from './Popup'
@@ -175,6 +176,35 @@ const ManageContracts = (props) => {
             }
         }
 
+        if(section == "scratched"){
+
+            if(ele.classList.contains("active")){
+                //style it as active, selected
+                ele.className = "w-48 text-left text-xs whitespace-nowrap bg-slate-500 text-white active"
+                setSelectedScratchedPlayers(selectedScratchedPlayers => [...selectedScratchedPlayers, contract])
+            }
+            else{
+                //style it as deselected
+                ele.className = "w-48 text-left text-xs whitespace-nowrap bg-white"
+                setSelectedScratchedPlayers(selectedScratchedPlayers.filter(scratchedRosterPlayers => scratchedRosterPlayers.id !== contract.id));
+                
+            }
+        }
+
+        if(section == "farmRoster"){
+
+            if(ele.classList.contains("active")){
+                //style it as active, selected
+                ele.className = "w-48 text-left text-xs whitespace-nowrap bg-slate-500 text-white active"
+                setSelectedFarmRosterPlayers(selectedFarmRosterPlayers => [...selectedFarmRosterPlayers, contract])
+            }
+            else{
+                //style it as deselected
+                ele.className = "w-48 text-left text-xs whitespace-nowrap bg-white"
+                setSelectedFarmRosterPlayers(selectedFarmRosterPlayers.filter(farmRosterPlayers => farmRosterPlayers.id !== contract.id));
+            }
+        }
+
         
 
         console.log("ele",ele);
@@ -191,12 +221,110 @@ const ManageContracts = (props) => {
     }
 
     const ScratchPlayers = () => {
-        alert("Scratching"+JSON.stringify(selectedGameRosterPlayers));
+        console.log("Scratching"+JSON.stringify(selectedGameRosterPlayers));
+
+        selectedGameRosterPlayers.forEach(player => {
+            console.log("Player to scratch:",player);
+            //todo variablize this path
+            let playerRef = doc(db, path+"/"+player.id);
+            updateDoc(playerRef, {
+                level:"Scratched"
+            })
+            .then(() =>{
+                console.log("db updated, scratched player:",player);
+                //remove styling and remove from selected list
+                
+            })
+        });
+
+        //db call after foreach loop to update ui
+        dbCall();
         
         //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
-        setSelectedGameRosterPlayers([]);
+        //setSelectedGameRosterPlayers([]);
+
         return;
     }
+
+    const DressPlayers = () => {
+        console.log("Dressing"+JSON.stringify(selectedScratchedPlayers));
+
+        selectedScratchedPlayers.forEach(player => {
+            console.log("Player to dress:",player);
+            ////todo variablize this path
+            let playerRef = doc(db, path+"/"+player.id);
+            updateDoc(playerRef, {
+                level:"Professional"
+            })
+            .then(() =>{
+                console.log("db updated, dressed player:",player);
+                //remove styling and remove from selected list
+                
+            })
+        });
+
+        //db call after foreach loop to update ui
+        dbCall();
+        
+        //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
+        //setSelectedGameRosterPlayers([]);
+
+        return;
+    }
+
+    const SendToFarm = () => {
+        console.log("Sending to farm"+JSON.stringify(selectedScratchedPlayers));
+
+        selectedScratchedPlayers.forEach(player => {
+            console.log("Player to send to farm:",player);
+            ////todo variablize this path
+            let playerRef = doc(db, path+"/"+player.id);
+            updateDoc(playerRef, {
+                level:"Farm"
+            })
+            .then(() =>{
+                console.log("db updated, player sent to the farm:",player);
+                //remove styling and remove from selected list
+                
+            })
+        });
+
+        //db call after foreach loop to update ui
+        dbCall();
+        
+        //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
+        //setSelectedGameRosterPlayers([]);
+
+        return;
+    }
+
+    const SendToPro = () => {
+        console.log("Sending to Pros"+JSON.stringify(selectedFarmRosterPlayers));
+
+        selectedFarmRosterPlayers.forEach(player => {
+            console.log("Player to send to Pros:",player);
+            ////todo variablize this path
+            let playerRef = doc(db, path+"/"+player.id);
+            updateDoc(playerRef, {
+                level:"Scratched"
+            })
+            .then(() =>{
+                console.log("db updated, player sent to Pros:",player);
+                //remove styling and remove from selected list
+                
+            })
+        });
+
+        //db call after foreach loop to update ui
+        dbCall();
+        
+        //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
+        //setSelectedGameRosterPlayers([]);
+
+        return;
+    }
+
+
 
     return (
 
@@ -206,6 +334,11 @@ const ManageContracts = (props) => {
 
                 <div className='bg-white'>
                     <h1 className='text-left text-xs font-bold p-1'>{gameRosterPlayers.length} Total Players</h1>
+                    {gameRosterPlayers.length == 20?(
+                        <h1 className='text-center text-green-500 text-xs font-bold p-1'>Valid Roster</h1>
+                    ):(
+                        <h1 className='text-center text-red-500 text-xs font-bold p-1'>Invalid Roster, need 20 players.</h1>
+                    )}
                         <div className='flex p-2 pt-0'>
                             <div className='flex flex-col'>    
                                 <h1 className='font-bold text-xs text-left'>Game Roster</h1>
@@ -242,7 +375,7 @@ const ManageContracts = (props) => {
                                                     <button 
                                                         id={contract.id}
                                                         className="w-48 text-left text-xs whitespace-nowrap m-0 p-0"
-                                                        onClick={()=>handleClick(contract)}>
+                                                        onClick={()=>handleClick(contract,"scratched")}>
                                                             {contract.value.player_name}                        
                                                     </button>
                                                 </li>
@@ -252,8 +385,8 @@ const ManageContracts = (props) => {
                                 </div>
                             </div>
                             <div className='flex flex-col w-full p-2 items-center justify-evenly'>
-                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap'>Dress</button>
-                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap'>Send to Farm</button>
+                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap' onClick={()=>DressPlayers()}>Dress</button>
+                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap' onClick={()=>SendToFarm()}>Send to Farm</button>
                             </div>
                         </div>
 
@@ -268,7 +401,7 @@ const ManageContracts = (props) => {
                                                     <button 
                                                         id={contract.id}
                                                         className="w-48 text-left text-xs whitespace-nowrap m-0 p-0"
-                                                        onClick={()=>handleClick(contract)}>
+                                                        onClick={()=>handleClick(contract,"farmRoster")}>
                                                             {contract.value.player_name}                        
                                                     </button>
                                                 </li>
@@ -278,7 +411,7 @@ const ManageContracts = (props) => {
                                 </div>
                             </div>
                             <div className='flex flex-col w-full p-2 items-center justify-evenly'>
-                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap'>Send to Pro</button>
+                                <button className='w-28 border-2 p-2 text-center whitespace-nowrap' onClick={()=>SendToPro()}>Send to Pro</button>
                             </div>
                         </div>
                 </div>

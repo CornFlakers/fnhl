@@ -478,8 +478,14 @@ const ManageLeague = (props) => {
 
   }
 
-  const onFileChange = () => {
-    alert("file changed");
+  //user uploaded a file, for baseloading players for a league
+  const onFileChange = (e) => {
+    let file = e.target.files[0];
+    if(file.type !== "text/csv"){
+      alert("not a valid filetype");
+      return;
+    }
+    console.log(file);
   }
 
   const onFileUpload = () => {

@@ -478,6 +478,14 @@ const ManageLeague = (props) => {
 
   }
 
+  const onFileChange = () => {
+    alert("file changed");
+  }
+
+  const onFileUpload = () => {
+    alert("file uploaded");
+  }
+
   return (
     <div className='mt-2'>
       
@@ -569,6 +577,22 @@ const ManageLeague = (props) => {
         </form>
       </div> 
       
+      {/* Base load players */}
+      <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2 pt-2'>
+        <h1 className='text-center underline font-bold'>Baseload Players</h1>
+        <p>Upload a .csv in a specific format, contact <a className='underline' href="mailto:wsbarth92@gmail.com">wsbarth92@gmail.com</a> for details</p>
+        
+        <div className='flex flex-col p-2 mt-2'>
+          <input type="file" onChange={onFileChange} />
+        </div>
+
+        <div className='text-center border-t-2 mt-2'>
+          <button className='w-full h-10 hover:bg-zinc-600 hover:text-white' onClick={onFileUpload}>Upload</button>
+        </div>
+        
+      </div>
+
+      {/* Create a player */}
       <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2 pt-2'>
         <h1 className='text-center underline font-bold'>Create a Player</h1>
         <p>Create a new player, associate them to a Team's Contracts</p>

@@ -2,6 +2,7 @@ import { addDoc, collection, doc, getDocs, orderBy, query, setDoc, updateDoc, wh
 import React, { useEffect, useState } from 'react'
 import { db } from '../firebase';
 import Select from 'react-select';
+import Papa from 'papaparse';
 
 function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -67,6 +68,9 @@ const ManageLeague = (props) => {
   const [playerLD, setPlayerLD] = useState(50);//user provided, default 50
   const [playerSalary, setPlayerSalary] = useState(750000);//user provided, default 750 000
   const [playerPosition, setPlayerPosition] = useState("F");//user provided, default F
+
+  const [baseloadFile, setBaseloadFile] = useState();
+
 
   //functions
   function setUserSelectOptions(i){
@@ -386,8 +390,8 @@ const ManageLeague = (props) => {
           console.log("dbPlayerCreate>player creation stat creation complete");
           //time to write to the teams contracts if applicable
           addDoc(collection(db,leagueInfo.path+"/teams/"+player.current_team+"/contracts"),{
-            jersery_number:0,
-            level:"Professional",
+            jersery_number:player.team_contract_jersey_number?player.team_contract_jersey_number:0,
+            level:player.team_contract_level?player.team_contract_level:"Professional",
             player_id:newPlayerRef,
             player_name:player.name,
             position:player.position,
@@ -465,6 +469,78 @@ const ManageLeague = (props) => {
     return obj;
   }
 
+  const buildPlayerObj_fromFile = (raw_player_data) => {
+    let obj = {
+      age: raw_player_data.player_age,
+      career_earnings: raw_player_data.player_career_earnings,
+      condition: 100,
+      current_team: raw_player_data.player_current_team,
+      current_team_value: raw_player_data.player_current_team_value,
+      draft: raw_player_data.player_draft,
+      drafted_at: raw_player_data.player_drafted_at,
+      drafted_by: raw_player_data.player_drafted_by,
+      drafted_by_id: raw_player_data.player_drafted_by_id,
+      drafted_detail: raw_player_data.player_drafted_detail?raw_player_data.player_drafted_detail:"",
+      height_in_inches: raw_player_data.player_height_in_inches,
+      isInjured: raw_player_data.player_isInjured,
+      name: raw_player_data.player_name,
+      position: raw_player_data.player_position,
+      shot_direction: raw_player_data.player_shot_direction,
+      weight_in_lbs: raw_player_data.player_weight_in_lbs,
+      years_in_pro: raw_player_data.player_years_in_pro,
+      stats:{
+        season:raw_player_data.player_stats_season,
+        team:raw_player_data.player_stats_team,
+        team_id:raw_player_data.player_stats_team_id,
+        games_played:raw_player_data.player_stats_games_played,
+        goals:raw_player_data.player_stats_goals,
+        assists:raw_player_data.player_stats_assists,
+        points:raw_player_data.player_stats_points,
+        plus_minus:raw_player_data.player_stats_plus_minus,
+        pims:raw_player_data.player_stats_pims,
+        powerplay_goals:raw_player_data.player_stats_powerplay_goals,
+        short_handed_goals:raw_player_data.player_stats_short_handed_goals,
+        game_winning_goals:raw_player_data.player_stats_game_winning_goals,
+        game_tying_goals:raw_player_data.player_stats_game_tying_goals,
+        hits:raw_player_data.player_stats_hits,
+        shots:raw_player_data.player_stats_shots,
+        shooting_percentage:raw_player_data.player_stats_shooting_percentage,
+        average_time_on_ice:raw_player_data.player_stats_average_time_on_ice,
+        IT:raw_player_data.player_stats_IT,
+        SP:raw_player_data.player_stats_SP,
+        ST:raw_player_data.player_stats_ST,
+        EN:raw_player_data.player_stats_EN,
+        DU:raw_player_data.player_stats_DU,
+        DI:raw_player_data.player_stats_DI,
+        SK:raw_player_data.player_stats_SK,
+        PA:raw_player_data.player_stats_PA,
+        PC:raw_player_data.player_stats_PC,
+        DF:raw_player_data.player_stats_DF,
+        SC:raw_player_data.player_stats_SC,
+        EX:raw_player_data.player_stats_EX,
+        LD:raw_player_data.player_stats_LD,
+        salary:raw_player_data.player_stats_salary
+      },
+      team_contract: raw_player_data.team_contract,
+      team_contract_jersey_number: raw_player_data.team_contract_jersey_number,
+      team_contract_level: raw_player_data.team_contract_level
+    }
+
+    //build out the player object based on input from form/
+    console.log("ManageLeague>createPlayer_from_file",obj);
+
+    //log to console for opt to review and confirm
+    if(window.confirm("Are you sure you want to Create this Player?")){
+      //user wants to create the player, proceed.
+      let dbPlayerCreateResult = dbPlayerCreate(obj);
+    }
+    else{
+      console.log("cancel");
+    }
+
+
+  }
+
   const clearPlayerForm = (e) => {
     e.preventDefault();
     
@@ -485,11 +561,33 @@ const ManageLeague = (props) => {
       alert("not a valid filetype");
       return;
     }
-    console.log(file);
+
+    setBaseloadFile(file);
+
+    //player
+    //player.stats
+    //teams.contracts
+    
   }
 
   const onFileUpload = () => {
-    alert("file uploaded");
+    if(baseloadFile !== undefined){
+      let file = baseloadFile;
+        Papa.parse(file, {
+          header: true,
+          skipEmptyLines: true,
+          complete: function (results) {
+            handleFileReadResults(results.data);
+          },
+        });
+    }
+  }
+
+  const handleFileReadResults = (data) => {
+    data.forEach(player => {
+      console.log("Data.player",player);
+      buildPlayerObj_fromFile(player);
+    });
   }
 
   return (

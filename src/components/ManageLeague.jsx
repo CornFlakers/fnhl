@@ -684,7 +684,10 @@ const ManageLeague = (props) => {
       {/* Base load players */}
       <div className='shadow-md bg-white sm:max-w-lg max-w-xs m-auto w-full text-center mt-2 pt-2'>
         <h1 className='text-center underline font-bold'>Baseload Players</h1>
-        <p>Upload a .csv in a specific format, contact <a className='underline' href="mailto:wsbarth92@gmail.com">wsbarth92@gmail.com</a> for details</p>
+        <p className='text-left p-2'>Upload a .csv in a specific format, contact <a className='underline' href="mailto:wsbarth92@gmail.com">wsbarth92@gmail.com</a> for details</p>
+        <br />
+        <p className='text-left p-2'>Use this link, download the .csv, and use it to <b>ADD</b> players, make sure to not include already added players that you've added manually below... <br /> </p>
+        <p className='mt-2 p-2'><a href="https://firebasestorage.googleapis.com/v0/b/fnhl-42033.appspot.com/o/players.csv?alt=media&token=573c25e5-e97b-4c2e-9f0b-9266c7a07a6e" className='font-bold underline text-center w-full'>LINK TO CSV DOWNLOAD</a></p>
         
         <div className='flex flex-col p-2 mt-2'>
           <input type="file" onChange={onFileChange} />

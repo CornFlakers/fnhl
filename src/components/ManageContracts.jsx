@@ -1,5 +1,6 @@
 
-import Firebase, {collection, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { reauthenticateWithCredential } from 'firebase/auth'
+import {collection, getDocs, doc, updateDoc } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
 import { db } from '../firebase'
 import Popup from './Popup'
@@ -20,7 +21,7 @@ const ManageContracts = (props) => {
     //console.log("path:",path)
 
     const [contracts, setContracts] = useState([]);
-    const [selectedContracts, setSelectedContracts] = useState([]);
+    //const [selectedContracts, setSelectedContracts] = useState([]);
     const [team_id, setTeamId] = useState();
     const [team_name, setTeamName] = useState();
     const [team_code, setTeamCode] = useState();
@@ -34,6 +35,72 @@ const ManageContracts = (props) => {
     const [selectedScratchedPlayers, setSelectedScratchedPlayers] = useState([]);
     const [scratchedRosterPlayers, setScratchedRosterPlayers] = useState([]);
     
+    //call the db
+    const dbCall = () => {
+        console.log("dbCall:start");
+        console.log("Path:",path);
+        //db call to get the team contracts information
+        
+        getDocs(collection(db, path))
+        .then((qSnap) => {
+
+            let ary = [];
+            let aryGameRosterPlayers = [];
+            let aryFarmRosterPlayers = [];
+            let aryScratchedPlayers = [];
+
+            qSnap.forEach((document) => {
+                //console.log("a contract was found","document",document,"document.id",document.id,"document.data()",document.data());
+
+                ary.push({
+                    id:document.id,
+                    value:document.data()
+                })
+
+                let level = document.data().level;
+
+                if(level === "Professional"){
+                    aryGameRosterPlayers.push({
+                        id:document.id,
+                        value:document.data()
+                    })
+                }
+                else if(level === "Farm"){
+                    aryFarmRosterPlayers.push({
+                        id:document.id,
+                        value:document.data()
+                    })
+                }
+                else if(level === "Scratched"){
+                    aryScratchedPlayers.push({
+                        id:document.id,
+                        value:document.data()
+                    })
+                }
+
+                //console.log(ary);
+            })
+
+            setContracts(ary);
+            setGameRosterPlayers(aryGameRosterPlayers);
+            setFarmRosterPlayers(aryFarmRosterPlayers);
+            setScratchedRosterPlayers(aryScratchedPlayers);
+        })
+        .then(() => {
+            console.log("db called resolved");
+        })
+        .catch((err) => {
+            console.error(err);
+        })
+    }
+
+    //when path is updated, call db, this should run 'once' at the first load of this component
+    useEffect(()=>{
+        if(path != undefined){
+            console.log("dbcall from path use effect")
+            dbCall();
+        }
+    },[path])
 
     useEffect( () => {
         console.log("Doing once...");
@@ -62,7 +129,7 @@ const ManageContracts = (props) => {
         }
         
         
-    },[])
+    },[gm_id, league_id, props, team_code, team_id, team_name])
 
     useEffect( () =>{
         if(!league_id && !team_id){
@@ -78,82 +145,34 @@ const ManageContracts = (props) => {
 
         if(contracts.length === 0){
             console.log("Contracts is:",contracts,"calling the db...");
-            dbCall();
             return;
         }
 
-    },[league_id, team_id, path])
+    },[league_id, team_id, path, contracts])
 
-    const dbCall = () => {
-        console.log("dbCall:start");
-        console.log("Path:",path);
-        //db call to get the team contracts information
-        
-        getDocs(collection(db, path))
-        .then((qSnap) => {
-
-            let ary = [];
-            let aryGameRosterPlayers = [];
-            let aryFarmRosterPlayers = [];
-            let aryScratchedPlayers = [];
-
-            qSnap.forEach((document) => {
-                console.log("a contract was found","document",document,"document.id",document.id,"document.data()",document.data());
-
-                ary.push({
-                    id:document.id,
-                    value:document.data()
-                })
-
-                let level = document.data().level;
-
-                if(level == "Professional"){
-                    aryGameRosterPlayers.push({
-                        id:document.id,
-                        value:document.data()
-                    })
-                }
-                else if(level == "Farm"){
-                    aryFarmRosterPlayers.push({
-                        id:document.id,
-                        value:document.data()
-                    })
-                }
-                else if(level == "Scratched"){
-                    aryScratchedPlayers.push({
-                        id:document.id,
-                        value:document.data()
-                    })
-                }
-
-                console.log(ary);
-            })
-
-            setContracts(ary);
-            setGameRosterPlayers(aryGameRosterPlayers);
-            setFarmRosterPlayers(aryFarmRosterPlayers);
-            setScratchedRosterPlayers(aryScratchedPlayers);
-        })
-        .then(() => {
-            console.log("db called resolved");
-        })
-        .catch((err) => {
-            console.error(err);
-        })
-    }
+    
 
     useEffect( () => {
-        if(contracts.length !== 0){
-            console.log("useEffect>contracts>if contracts.length !== 0 ... contracts object updated",contracts);
-        }
-        else{
-            console.log("useEffect>contracts>else contracts object updated",contracts);
-        }
+        // if(contracts.length !== 0){
+        //     console.log("useEffect>contracts>if contracts.length !== 0 ... contracts object updated",contracts);
+        // }
+        // else{
+        //     console.log("useEffect>contracts>else contracts object updated",contracts);
+        // }
 
-        console.log("useEffect>contracts>",contracts.length);
+        // console.log("useEffect>contracts>",contracts.length);
+
+        // console.log("ManageContracts:gameRosterPlayers",gameRosterPlayers);
+        // console.log("ManageContracts:farmRosterPlayers",farmRosterPlayers);
+        // console.log("ManageContracts:scratchedRosterPlayers",scratchedRosterPlayers);
+
+        console.log("ManageContracts:selectedGameRosterPlayers",selectedGameRosterPlayers);
+        console.log("ManageContracts:selectedFarmRosterPlayers",selectedFarmRosterPlayers);
+        console.log("ManageContracts:selectedScratchedPlayers",selectedScratchedPlayers);
+        
 
         
-    }, [contracts])
+    }, [contracts, gameRosterPlayers, farmRosterPlayers, scratchedRosterPlayers, selectedFarmRosterPlayers, selectedGameRosterPlayers, selectedScratchedPlayers])
 
     const handleClick = (contract, section) => {
         console.log("click ...",contract)
@@ -161,7 +180,7 @@ const ManageContracts = (props) => {
         let ele = document.getElementById(contract.id);
         ele.classList.toggle("active")
         
-        if(section == "gameRoster"){
+        if(section === "gameRoster"){
 
             if(ele.classList.contains("active")){
                 //style it as active, selected
@@ -176,7 +195,7 @@ const ManageContracts = (props) => {
             }
         }
 
-        if(section == "scratched"){
+        if(section === "scratched"){
 
             if(ele.classList.contains("active")){
                 //style it as active, selected
@@ -191,7 +210,7 @@ const ManageContracts = (props) => {
             }
         }
 
-        if(section == "farmRoster"){
+        if(section === "farmRoster"){
 
             if(ele.classList.contains("active")){
                 //style it as active, selected
@@ -209,119 +228,128 @@ const ManageContracts = (props) => {
 
         console.log("ele",ele);
     }
-
-    useEffect(()=>{
-        if(selectedContracts.length > 0){
-            console.log("selected contracts",selectedContracts.length);
-        }
-    },[selectedContracts])
     
     const handleRosterControl = (action) => {
         console.log(action);
     }
 
     const ScratchPlayers = () => {
-        console.log("Scratching"+JSON.stringify(selectedGameRosterPlayers));
+        console.log("Scratching",selectedGameRosterPlayers);
+        console.table(selectedGameRosterPlayers);
+
+        let updateProms = [];
 
         selectedGameRosterPlayers.forEach(player => {
             console.log("Player to scratch:",player);
             //todo variablize this path
             let playerRef = doc(db, path+"/"+player.id);
-            updateDoc(playerRef, {
+            updateProms.push(updateDoc(playerRef, {
                 level:"Scratched"
-            })
-            .then(() =>{
-                console.log("db updated, scratched player:",player);
-                //remove styling and remove from selected list
-                
-            })
+            }));
         });
 
-        //db call after foreach loop to update ui
-        dbCall();
+        Promise.all(updateProms)
+            .then(()=>{
+                //db call after foreach loop to update ui
+                console.log("dbcall from scratch");
+                dbCall();
+
+                setSelectedGameRosterPlayers([]);
+            });        
         
         //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
         //setSelectedGameRosterPlayers([]);
 
-        return;
+        //return;
     }
 
     const DressPlayers = () => {
-        console.log("Dressing"+JSON.stringify(selectedScratchedPlayers));
+        console.log("Dressing",selectedScratchedPlayers);
+        console.table(selectedScratchedPlayers);
+
+        let updateProms = [];
 
         selectedScratchedPlayers.forEach(player => {
             console.log("Player to dress:",player);
             ////todo variablize this path
             let playerRef = doc(db, path+"/"+player.id);
-            updateDoc(playerRef, {
+            
+            updateProms.push(updateDoc(playerRef, {
                 level:"Professional"
-            })
-            .then(() =>{
-                console.log("db updated, dressed player:",player);
-                //remove styling and remove from selected list
-                
-            })
+            }));
         });
 
-        //db call after foreach loop to update ui
-        dbCall();
+        Promise.all(updateProms)
+            .then(()=>{
+                //db call after foreach loop to update ui
+                console.log("dbcall from dress");
+                dbCall();
+
+                setSelectedScratchedPlayers([]);
+            });
         
         //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
         //setSelectedGameRosterPlayers([]);
 
-        return;
+        //return;
     }
 
     const SendToFarm = () => {
-        console.log("Sending to farm"+JSON.stringify(selectedScratchedPlayers));
+        console.log("Sending to farm",selectedScratchedPlayers);
+
+        let updateProms = [];
 
         selectedScratchedPlayers.forEach(player => {
             console.log("Player to send to farm:",player);
             ////todo variablize this path
             let playerRef = doc(db, path+"/"+player.id);
-            updateDoc(playerRef, {
+            updateProms.push(updateDoc(playerRef, {
                 level:"Farm"
-            })
-            .then(() =>{
-                console.log("db updated, player sent to the farm:",player);
-                //remove styling and remove from selected list
-                
-            })
+            }));
         });
 
-        //db call after foreach loop to update ui
-        dbCall();
+        Promise.all(updateProms)
+            .then(()=>{
+                //db call after foreach loop to update ui
+                console.log("dbcall from send2farm");
+                dbCall();
+
+                setSelectedScratchedPlayers([]);
+            });
         
         //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
         //setSelectedGameRosterPlayers([]);
 
-        return;
+        //return;
     }
 
     const SendToPro = () => {
         console.log("Sending to Pros"+JSON.stringify(selectedFarmRosterPlayers));
 
+        let updateProms = [];
+
         selectedFarmRosterPlayers.forEach(player => {
             console.log("Player to send to Pros:",player);
             ////todo variablize this path
             let playerRef = doc(db, path+"/"+player.id);
-            updateDoc(playerRef, {
+            updateProms.push(updateDoc(playerRef, {
                 level:"Scratched"
-            })
-            .then(() =>{
-                console.log("db updated, player sent to Pros:",player);
-                //remove styling and remove from selected list
-                
-            })
+            }))
         });
 
-        //db call after foreach loop to update ui
-        dbCall();
+        Promise.all(updateProms)
+            .then(()=>{
+                //db call after foreach loop to update ui
+                console.log("dbcall from send2pro");
+                dbCall();
+
+                setSelectedFarmRosterPlayers([]);
+            });
         
         //setFarmRosterPlayers(farmRosterPlayers => [...farmRosterPlayers,selectedGameRosterPlayers])
         //setSelectedGameRosterPlayers([]);
 
-        return;
+        //return;
     }
 
 
@@ -334,7 +362,7 @@ const ManageContracts = (props) => {
 
                 <div className='bg-white'>
                     <h1 className='text-left text-xs font-bold p-1'>{gameRosterPlayers.length} Total Players</h1>
-                    {gameRosterPlayers.length == 20?(
+                    {gameRosterPlayers.length === 20?(
                         <h1 className='text-center text-green-500 text-xs font-bold p-1'>Valid Roster</h1>
                     ):(
                         <h1 className='text-center text-red-500 text-xs font-bold p-1'>Invalid Roster, need 20 players.</h1>
@@ -420,13 +448,6 @@ const ManageContracts = (props) => {
                 <div>    
                     <div>
                         <h1>Selected Contracts</h1>
-                        <div className='flex'>
-                        {selectedContracts.map( (selectedContract,index) => {
-                            return(
-                                <h1 key={selectedContract.id}>{index>0 && ","}{selectedContract.value.player_name}</h1>
-                            )
-                        })}
-                        </div>
                     </div>
                     <div className='border-2 border-yellow-400'>
                         <h1 className='font-bold text-lg'>Controls</h1>

@@ -1,11 +1,11 @@
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import {doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
 import { db } from '../firebase';
 import ManageContracts from './ManageContracts';
 
 const ManageTeam = (props) => {
 
-  const commissioner_league_path = props.userInfo.commissioner_for_league.path;
+  //const commissioner_league_path = props.userInfo.commissioner_for_league.path;
   const league_id = props.userInfo.default_league.value;
   const team_id = props.userInfo.team;
   const [team, setTeam] = useState("");
@@ -30,7 +30,7 @@ const ManageTeam = (props) => {
       })
     })
 
-  },[])
+  },[league_id, team_id])
 
   //run once league has been set
   useEffect( () => {

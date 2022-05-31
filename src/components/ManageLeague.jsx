@@ -1,6 +1,6 @@
-import { addDoc, collection, collectionGroup, doc, getDoc, getDocs, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
-import { auth, db } from '../firebase';
+import { db } from '../firebase';
 import Select from 'react-select';
 
 function numberWithCommas(x) {
@@ -23,7 +23,7 @@ Clicking Manage Rosters will load this pop-up.
 
 const ManageLeague = (props) => {
 
-  console.log("ManageLeague.Props",props);
+  //console.log("ManageLeague.Props",props);
 
   const league_path = props.userInfo.commissioner_for_league.path;
 
@@ -207,7 +207,7 @@ const ManageLeague = (props) => {
     return () => {
       mounted = false;
     }    
-  },[])
+  },[league_path, playerTeams])
 
   useEffect( () => {
     console.log("ManageLeague>LeagueInfo",leagueInfo);

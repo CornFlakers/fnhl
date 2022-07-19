@@ -36,9 +36,9 @@ const Signin = () => {
   };
 
   return (
-    <div className='max-w-[700px] mx-auto my-16 p-20'>
+    <div className='max-w-[700px] p-8 pt-2'>
             <div>
-                <h1 className='text-2xl font-bold py-2'>
+                <h1 className='text-2xl font-bold'>
                   Sign in to your Account
                 </h1>
                 <p className='py-2'>

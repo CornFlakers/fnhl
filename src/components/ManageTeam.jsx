@@ -1,11 +1,11 @@
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import {doc, getDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react'
 import { db } from '../firebase';
 import ManageContracts from './ManageContracts';
 
 const ManageTeam = (props) => {
 
-  const commissioner_league_path = props.userInfo.commissioner_for_league.path;
+  //const commissioner_league_path = props.userInfo.commissioner_for_league.path;
   const league_id = props.userInfo.default_league.value;
   const team_id = props.userInfo.team;
   const [team, setTeam] = useState("");
@@ -30,7 +30,7 @@ const ManageTeam = (props) => {
       })
     })
 
-  },[])
+  },[league_id, team_id])
 
   //run once league has been set
   useEffect( () => {
@@ -49,13 +49,12 @@ const ManageTeam = (props) => {
 
         <button 
           className={` w-full h-10 ${manageContracts? "bg-slate-500 text-white":"hover:bg-zinc-600 hover:text-white focus:bg-slate-500 focus:text-white"}`}
-          onClick={() => {
-            setManageContracts(!manageContracts);}}>    
-          Manage Contracts
+          onClick={() => {setManageContracts(!manageContracts);}}>    
+          Manage Roster
         </button>
         
         {manageContracts &&
-          <ManageContracts team={team} league={league_id} />
+          <ManageContracts team={team} league={league_id} trigger={manageContracts} setTrigger={setManageContracts}/>
         }
         
       </div>

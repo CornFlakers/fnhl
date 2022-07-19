@@ -57,6 +57,16 @@ export const MainNavBar = () => {
           return;
         }
         else{
+            
+            try{
+                console.log("MainNavBar>Logging User/Loading use efffect user.uid",user.uid);
+            }
+            catch(e){
+                console.error("graceful exit",e);
+                return;
+            }
+            
+
             let mounted = true;
       
             // get logged in user info
@@ -183,10 +193,14 @@ export const MainNavBar = () => {
                 </div>
             </div>
             
-            {user &&
+            {user ?
             <div className='p-2 mr-2 bg-slate-200 m-2 shadow-md text-xs sm:text-base flex float-right'>
                 <h1>You're logged in as <Link className='underline italic' to="/manage">{userInfo.name? userInfo.name : userInfo.email}</Link> | </h1>
                 <a href="#" onClick={handleLogout} className='pl-2 underline'>Logout</a>
+            </div>
+            :
+            <div className='p-2 mr-2 bg-slate-200 m-2 shadow-md text-xs sm:text-base flex float-right'>
+                <h1>You're not logged in <Link className='underline italic' to="/signin">click here to sign in</Link></h1>
             </div>
             }
 

@@ -150,7 +150,7 @@ const ManageProfile = (userInfo) => {
                         </div>
                     
 
-                        <div className='w-full pt-2'>
+                        <div className='w-full pt-2 border-t-2'>
                             <input className='w-full h-10 hover:bg-zinc-600 hover:text-white' type='submit' value="Update"></input>
                         </div>
                 </form>
